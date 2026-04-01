@@ -1,35 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminLogin } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Lock, Shield } from "lucide-react";
+import { Shield, Send } from "lucide-react";
+
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initData: string;
+        ready: () => void;
+        expand: () => void;
+      };
+    };
+  }
+}
 
 export default function LoginPage() {
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [initData, setInitData] = useState("");
   const { login } = useAuth();
   const [, setLocation] = useLocation();
   const loginMutation = useAdminLogin();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      if (tg.initData) {
+        setInitData(tg.initData);
+      }
+    }
+  }, []);
+
+  const handleLogin = async () => {
     setError("");
 
+    if (!initData) {
+      setError("Откройте приложение через Telegram");
+      return;
+    }
+
     try {
-      const result = await loginMutation.mutateAsync({ data: { password, initData: "" } });
+      const result = await loginMutation.mutateAsync({
+        data: { initData, password: "" },
+      });
       if (result.ok && result.token) {
         login(result.token);
         setLocation("/");
       } else {
-        setError("Неверный пароль");
+        setError("Ошибка входа");
       }
     } catch (err: unknown) {
       const status = (err as { status?: number })?.status;
       const data = (err as { data?: { error?: string } })?.data;
-      if (status === 401) {
-        setError("Неверный пароль");
+      if (status === 403) {
+        setError("Доступ запрещён");
+      } else if (status === 401) {
+        setError("Неверные данные Telegram");
       } else if (status === 500 && data?.error) {
         setError(`Ошибка сервера: ${data.error}`);
       } else {
@@ -37,6 +67,8 @@ export default function LoginPage() {
       }
     }
   };
+
+  const isInsideTelegram = !!window.Telegram?.WebApp?.initData;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -47,38 +79,37 @@ export default function LoginPage() {
               <Shield size={28} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">CRYPTEXA</h1>
-            <p className="text-sm text-muted-foreground mt-1">Панель Администратора</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Панель Администратора
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="password"
-                placeholder="Введите пароль администратора"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-muted border-border text-foreground"
-                data-testid="input-password"
-                autoComplete="current-password"
-              />
-            </div>
+          <div className="space-y-4">
+            {!isInsideTelegram && (
+              <p className="text-sm text-muted-foreground text-center">
+                Откройте это приложение через Telegram
+              </p>
+            )}
 
             {error && (
-              <p className="text-sm text-destructive text-center" data-testid="text-login-error">
+              <p
+                className="text-sm text-destructive text-center"
+                data-testid="text-login-error"
+              >
                 {error}
               </p>
             )}
 
             <Button
-              type="submit"
-              className="w-full gradient-btn text-white font-semibold"
-              disabled={loginMutation.isPending}
+              onClick={handleLogin}
+              className="w-full gradient-btn text-white font-semibold flex items-center gap-2"
+              disabled={loginMutation.isPending || !isInsideTelegram}
               data-testid="button-login"
             >
-              {loginMutation.isPending ? "Вход..." : "Войти"}
+              <Send size={16} />
+              {loginMutation.isPending ? "Вход..." : "Войти через Telegram"}
             </Button>
-          </form>
+          </div>
 
           <p className="text-xs text-muted-foreground text-center mt-6">
             Защищённый доступ — CRYPTEXA Admin
