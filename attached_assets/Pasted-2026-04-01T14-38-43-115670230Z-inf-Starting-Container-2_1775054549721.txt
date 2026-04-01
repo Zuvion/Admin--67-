@@ -1,0 +1,74 @@
+2026-04-01T14:38:43.115670230Z [inf]  Starting Container
+2026-04-01T14:38:44.124340362Z [err]  /app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225
+2026-04-01T14:38:44.124345384Z [err]        throw new PathError(`Missing parameter name at index ${index}`, str);
+2026-04-01T14:38:44.124407828Z [err]              ^
+2026-04-01T14:38:44.124494098Z [err]      at <anonymous> (/app/artifacts/api-server/src/app.ts:41:7) {
+2026-04-01T14:38:44.124501689Z [err]    originalPath: '*'
+2026-04-01T14:38:44.124537170Z [err]  
+2026-04-01T14:38:44.124549138Z [err]  
+2026-04-01T14:38:44.124559032Z [err]  PathError [TypeError]: Missing parameter name at index 1: *; visit https://git.new/pathToRegexpError for info
+2026-04-01T14:38:44.124564922Z [err]      at name (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225:13)
+2026-04-01T14:38:44.124579417Z [err]      at parse (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:242:62)
+2026-04-01T14:38:44.124586522Z [err]      at pathToRegexp (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:480:54)
+2026-04-01T14:38:44.124592601Z [err]      at Object.match (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:438:28)
+2026-04-01T14:38:44.124599279Z [err]      at matcher (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:86:23)
+2026-04-01T14:38:44.124624817Z [err]      at new Layer (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:93:62)
+2026-04-01T14:38:44.124630711Z [err]      at Function.route (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:428:17)
+2026-04-01T14:38:44.124636043Z [err]      at Function.route (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:257:22)
+2026-04-01T14:38:44.124641018Z [err]      at Function.app2.<computed> (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:478:22)
+2026-04-01T14:38:45.313538076Z [err]      at name (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225:13)
+2026-04-01T14:38:45.313546195Z [err]      at parse (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:242:62)
+2026-04-01T14:38:45.313552063Z [err]      at pathToRegexp (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:480:54)
+2026-04-01T14:38:45.313577943Z [err]      at Function.route (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:428:17)
+2026-04-01T14:38:45.313584703Z [err]      at Object.match (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:438:28)
+2026-04-01T14:38:45.313600027Z [err]      at Function.route (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:257:22)
+2026-04-01T14:38:45.313600136Z [err]      at matcher (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:86:23)
+2026-04-01T14:38:45.313609664Z [err]      at new Layer (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:93:62)
+2026-04-01T14:38:45.313615537Z [err]      at Function.app2.<computed> (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:478:22)
+2026-04-01T14:38:45.313653889Z [err]  }
+2026-04-01T14:38:45.313660354Z [err]  
+2026-04-01T14:38:45.313666645Z [err]  Node.js v20.20.2
+2026-04-01T14:38:45.313674691Z [err]  /app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225
+2026-04-01T14:38:45.313680492Z [err]        throw new PathError(`Missing parameter name at index ${index}`, str);
+2026-04-01T14:38:45.313685994Z [err]              ^
+2026-04-01T14:38:45.313691629Z [err]  
+2026-04-01T14:38:45.313697163Z [err]  
+2026-04-01T14:38:45.313702746Z [err]  PathError [TypeError]: Missing parameter name at index 1: *; visit https://git.new/pathToRegexpError for info
+2026-04-01T14:38:46.450615344Z [err]      at <anonymous> (/app/artifacts/api-server/src/app.ts:41:7) {
+2026-04-01T14:38:46.450657105Z [err]  PathError [TypeError]: Missing parameter name at index 1: *; visit https://git.new/pathToRegexpError for info
+2026-04-01T14:38:46.450686206Z [err]    originalPath: '*'
+2026-04-01T14:38:46.450691147Z [err]  }
+2026-04-01T14:38:46.450696495Z [err]  
+2026-04-01T14:38:46.450701839Z [err]  Node.js v20.20.2
+2026-04-01T14:38:46.450707118Z [err]  /app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225
+2026-04-01T14:38:46.450712881Z [err]        throw new PathError(`Missing parameter name at index ${index}`, str);
+2026-04-01T14:38:46.450720535Z [err]              ^
+2026-04-01T14:38:46.450731854Z [err]  
+2026-04-01T14:38:46.450739049Z [err]  
+2026-04-01T14:38:46.450766227Z [err]      at name (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225:13)
+2026-04-01T14:38:46.450771424Z [err]      at parse (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:242:62)
+2026-04-01T14:38:46.450784880Z [err]      at pathToRegexp (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:480:54)
+2026-04-01T14:38:46.450790546Z [err]      at Object.match (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:438:28)
+2026-04-01T14:38:46.450796835Z [err]      at matcher (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:86:23)
+2026-04-01T14:38:46.450804473Z [err]      at new Layer (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:93:62)
+2026-04-01T14:38:46.450810414Z [err]      at Function.route (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:428:17)
+2026-04-01T14:38:46.450816856Z [err]      at Function.route (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:257:22)
+2026-04-01T14:38:47.495319959Z [err]      at Function.app2.<computed> (/app/node_modules/.pnpm/express@5.2.1/node_modules/express/lib/application.js:478:22)
+2026-04-01T14:38:47.495326010Z [err]      at <anonymous> (/app/artifacts/api-server/src/app.ts:41:7) {
+2026-04-01T14:38:47.495332107Z [err]    originalPath: '*'
+2026-04-01T14:38:47.495338386Z [err]  }
+2026-04-01T14:38:47.495344235Z [err]  
+2026-04-01T14:38:47.495350135Z [err]  Node.js v20.20.2
+2026-04-01T14:38:47.495357063Z [err]  /app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225
+2026-04-01T14:38:47.495364955Z [err]        throw new PathError(`Missing parameter name at index ${index}`, str);
+2026-04-01T14:38:47.495370554Z [err]              ^
+2026-04-01T14:38:47.495376038Z [err]  
+2026-04-01T14:38:47.495382803Z [err]  
+2026-04-01T14:38:47.495584796Z [err]  PathError [TypeError]: Missing parameter name at index 1: *; visit https://git.new/pathToRegexpError for info
+2026-04-01T14:38:47.495589641Z [err]      at name (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:225:13)
+2026-04-01T14:38:47.495593812Z [err]      at parse (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:242:62)
+2026-04-01T14:38:47.495600060Z [err]      at pathToRegexp (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:480:54)
+2026-04-01T14:38:47.495604637Z [err]      at Object.match (/app/node_modules/.pnpm/path-to-regexp@8.3.0/node_modules/path-to-regexp/src/index.ts:438:28)
+2026-04-01T14:38:47.495609167Z [err]      at matcher (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:86:23)
+2026-04-01T14:38:47.495614254Z [err]      at new Layer (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/lib/layer.js:93:62)
+2026-04-01T14:38:47.495618754Z [err]      at Function.route (/app/node_modules/.pnpm/router@2.2.0/node_modules/router/index.js:428:17)
