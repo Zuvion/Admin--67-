@@ -4,7 +4,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm --filter @workspace/api-server run build
 EXPOSE 3000
 WORKDIR /app/artifacts/api-server
