@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { useLocation } from "wouter";
-import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 interface AuthContextType {
   token: string | null;
@@ -13,20 +12,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("admin_jwt"));
   const [, setLocation] = useLocation();
-
-  useEffect(() => {
-    setAuthTokenGetter(() => token);
-    
-    // Setup fetch interceptor logic here if needed or let apiClient handle 401
-    const handleUnauthorized = (e: Event) => {
-      if (e instanceof CustomEvent && e.detail === 401) {
-        logout();
-      }
-    };
-    
-    window.addEventListener('api-unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('api-unauthorized', handleUnauthorized);
-  }, [token]);
 
   const login = (newToken: string) => {
     localStorage.setItem("admin_jwt", newToken);
