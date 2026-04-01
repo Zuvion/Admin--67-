@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "CRYPTEXA Admin Panel"
+version = "1.0.0"
+id = "artifacts/cryptexa-admin"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19639
+
+[services.development]
+run = "pnpm --filter @workspace/cryptexa-admin run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cryptexa-admin", "run", "build" ]
+publicDir = "artifacts/cryptexa-admin/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19639"
+BASE_PATH = "/"

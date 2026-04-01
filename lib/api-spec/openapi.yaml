@@ -1,15 +1,18 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CRYPTEXA Admin Panel API (proxy to CRYPTEXA backend)
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
@@ -24,6 +27,506 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: adminLogin
+      tags: [auth]
+      summary: Login with password and Telegram initData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/health:
+    get:
+      operationId: getCryptexaHealth
+      tags: [admin]
+      summary: Check CRYPTEXA backend health
+      responses:
+        "200":
+          description: CRYPTEXA health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CryptexaHealthResponse"
+
+  /admin/dashboard:
+    get:
+      operationId: getDashboard
+      tags: [admin]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardResponse"
+
+  /admin/stats:
+    get:
+      operationId: getStats
+      tags: [admin]
+      summary: Get brief statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResponse"
+
+  /admin/online-count:
+    get:
+      operationId: getOnlineCount
+      tags: [admin]
+      summary: Get online users count and list
+      responses:
+        "200":
+          description: Online users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnlineCountResponse"
+
+  /admin/users:
+    get:
+      operationId: listUsers
+      tags: [admin]
+      summary: List all users with search, filter, pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [premium, blocked, verified, with_balance, ""]
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersListResponse"
+
+  /admin/user/{profile_id}:
+    get:
+      operationId: getUserDetail
+      tags: [admin]
+      summary: Get user detail with transactions, trades, withdrawals
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDetailResponse"
+
+  /admin/user/{profile_id}/balance:
+    post:
+      operationId: updateUserBalance
+      tags: [admin]
+      summary: Change user balance
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBalanceBody"
+      responses:
+        "200":
+          description: Updated balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBalanceResponse"
+
+  /admin/user/{profile_id}/winrate:
+    post:
+      operationId: setUserWinRate
+      tags: [admin]
+      summary: Set user custom win rate
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetWinRateBody"
+      responses:
+        "200":
+          description: Win rate updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetWinRateResponse"
+
+  /admin/user/{profile_id}/status:
+    post:
+      operationId: setUserStatus
+      tags: [admin]
+      summary: Set user status (verify, premium, block, unblock)
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetUserStatusBody"
+      responses:
+        "200":
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetUserStatusResponse"
+
+  /admin/user/{profile_id}/message:
+    post:
+      operationId: sendUserMessage
+      tags: [admin]
+      summary: Send a Telegram message to user
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "200":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendMessageResponse"
+
+  /admin/lucky/users:
+    get:
+      operationId: getLuckyUsers
+      tags: [admin]
+      summary: List users with lucky mode info
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: ["on", "off", ""]
+      responses:
+        "200":
+          description: Lucky users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LuckyUsersResponse"
+
+  /admin/lucky/set:
+    post:
+      operationId: setLuckyMode
+      tags: [admin]
+      summary: Enable or disable lucky mode for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetLuckyModeBody"
+      responses:
+        "200":
+          description: Lucky mode updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetLuckyModeResponse"
+
+  /admin/lucky/history/{profile_id}:
+    get:
+      operationId: getLuckyHistory
+      tags: [admin]
+      summary: Get lucky mode change history for user
+      parameters:
+        - name: profile_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lucky history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LuckyHistoryResponse"
+
+  /admin/trades/{trade_id}/override-result:
+    post:
+      operationId: overrideTradeResult
+      tags: [admin]
+      summary: Override result of an active trade
+      parameters:
+        - name: trade_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OverrideTradeBody"
+      responses:
+        "200":
+          description: Trade result overridden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverrideTradeResponse"
+
+  /admin/withdrawals:
+    get:
+      operationId: listWithdrawals
+      tags: [admin]
+      summary: List withdrawal requests
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, completed, cancelled, all]
+            default: pending
+      responses:
+        "200":
+          description: Withdrawals list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalsListResponse"
+
+  /admin/withdrawal/{wd_id}/action:
+    post:
+      operationId: withdrawalAction
+      tags: [admin]
+      summary: Approve or reject a withdrawal
+      parameters:
+        - name: wd_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalActionBody"
+      responses:
+        "200":
+          description: Withdrawal action result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalActionResponse"
+
+  /admin/broadcast:
+    post:
+      operationId: sendBroadcast
+      tags: [admin]
+      summary: Send broadcast message to users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BroadcastBody"
+      responses:
+        "200":
+          description: Broadcast result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BroadcastResponse"
+
+  /admin/check/create:
+    post:
+      operationId: createCheck
+      tags: [admin]
+      summary: Create a gift check with USDT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckBody"
+      responses:
+        "200":
+          description: Check created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCheckResponse"
+
+  /admin/chat/unread:
+    get:
+      operationId: getChatUnread
+      tags: [admin]
+      summary: Get users with unread messages
+      responses:
+        "200":
+          description: Unread chats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatUnreadResponse"
+
+  /admin/chat/{user_id}:
+    get:
+      operationId: getChatHistory
+      tags: [admin]
+      summary: Get chat history with a user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatHistoryResponse"
+
+  /admin/chat/{user_id}/send:
+    post:
+      operationId: sendChatMessage
+      tags: [admin]
+      summary: Send a chat message to a user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendChatMessageBody"
+      responses:
+        "200":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendChatMessageResponse"
+
+  /admin/logs:
+    get:
+      operationId: getAdminLogs
+      tags: [admin]
+      summary: Get admin action logs
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Admin logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLogsResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +537,819 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        error:
+          type: string
+      required:
+        - ok
+        - error
+
+    LoginBody:
+      type: object
+      properties:
+        password:
+          type: string
+        initData:
+          type: string
+      required:
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        token:
+          type: string
+      required:
+        - ok
+        - token
+
+    CryptexaHealthResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        app:
+          type: string
+        version:
+          type: string
+        admin_id:
+          type: string
+      required:
+        - ok
+
+    DashboardStats:
+      type: object
+      properties:
+        total_users:
+          type: integer
+        active_24h:
+          type: integer
+        deposits_today:
+          type: number
+        deposits_week:
+          type: number
+        deposits_month:
+          type: number
+        pending_withdrawals:
+          type: integer
+        active_trades:
+          type: integer
+        total_balance:
+          type: number
+
+    DashboardResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        stats:
+          $ref: "#/components/schemas/DashboardStats"
+      required:
+        - ok
+
+    StatsData:
+      type: object
+      properties:
+        total_users:
+          type: integer
+        online_count:
+          type: integer
+        total_deposits:
+          type: number
+        total_withdrawals:
+          type: number
+        total_trades:
+          type: integer
+        active_trades:
+          type: integer
+        pending_withdrawals:
+          type: integer
+
+    StatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/StatsData"
+      required:
+        - success
+
+    OnlineUser:
+      type: object
+      properties:
+        telegram_id:
+          type: string
+        username:
+          type: string
+        profile_id:
+          type: integer
+        last_online_at:
+          type: string
+
+    OnlineCountData:
+      type: object
+      properties:
+        count:
+          type: integer
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnlineUser"
+
+    OnlineCountResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/OnlineCountData"
+      required:
+        - success
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        telegram_id:
+          type: string
+        profile_id:
+          type: integer
+        username:
+          type: string
+        balance_usdt:
+          type: number
+        is_verified:
+          type: boolean
+        is_premium:
+          type: boolean
+        is_blocked:
+          type: boolean
+        language:
+          type: string
+        lucky_mode:
+          type: boolean
+        custom_win_rate:
+          type: number
+          nullable: true
+        last_online_at:
+          type: string
+          nullable: true
+        telegram_link:
+          type: string
+        created_at:
+          type: string
+        referral_code:
+          type: string
+          nullable: true
+
+    UsersListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        total:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      required:
+        - ok
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+
+    Trade:
+      type: object
+      properties:
+        id:
+          type: integer
+        pair:
+          type: string
+        side:
+          type: string
+        amount_usdt:
+          type: number
+        start_price:
+          type: number
+        close_price:
+          type: number
+          nullable: true
+        duration_sec:
+          type: integer
+        status:
+          type: string
+        result:
+          type: string
+          nullable: true
+        payout:
+          type: number
+          nullable: true
+        opened_at:
+          type: string
+        closed_at:
+          type: string
+          nullable: true
+
+    Withdrawal:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        telegram_id:
+          type: string
+        profile_id:
+          type: integer
+        username:
+          type: string
+          nullable: true
+        amount_rub:
+          type: number
+        usdt_required:
+          type: number
+        card_number:
+          type: string
+        full_name:
+          type: string
+        status:
+          type: string
+        admin_notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+
+    AdminUserDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        telegram_id:
+          type: string
+        profile_id:
+          type: integer
+        username:
+          type: string
+        balance_usdt:
+          type: number
+        wallets:
+          type: object
+          additionalProperties:
+            type: number
+        is_verified:
+          type: boolean
+        is_premium:
+          type: boolean
+        is_blocked:
+          type: boolean
+        block_reason:
+          type: string
+          nullable: true
+        language:
+          type: string
+        referral_code:
+          type: string
+          nullable: true
+        referred_by:
+          type: string
+          nullable: true
+        referral_earnings:
+          type: number
+        referral_count:
+          type: integer
+        lucky_mode:
+          type: boolean
+        lucky_until:
+          type: string
+          nullable: true
+        lucky_max_wins:
+          type: integer
+          nullable: true
+        lucky_wins_used:
+          type: integer
+        custom_win_rate:
+          type: number
+          nullable: true
+        last_online_at:
+          type: string
+          nullable: true
+        telegram_link:
+          type: string
+        created_at:
+          type: string
+
+    UserDetailResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        user:
+          $ref: "#/components/schemas/AdminUserDetail"
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/Trade"
+        withdrawals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Withdrawal"
+      required:
+        - ok
+
+    UpdateBalanceBody:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [add, subtract, set]
+        amount:
+          type: number
+      required:
+        - action
+        - amount
+
+    UpdateBalanceResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        balance_usdt:
+          type: number
+      required:
+        - ok
+
+    SetWinRateBody:
+      type: object
+      properties:
+        custom_win_rate:
+          type: number
+          nullable: true
+      required:
+        - custom_win_rate
+
+    SetWinRateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            profile_id:
+              type: integer
+            custom_win_rate:
+              type: number
+              nullable: true
+      required:
+        - success
+
+    SetUserStatusBody:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [verify, premium, block, unblock]
+        reason:
+          type: string
+          nullable: true
+      required:
+        - action
+
+    SetUserStatusResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        is_verified:
+          type: boolean
+        is_premium:
+          type: boolean
+        is_blocked:
+          type: boolean
+        block_reason:
+          type: string
+          nullable: true
+      required:
+        - ok
+
+    SendMessageBody:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+        - text
+
+    SendMessageResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message_sent:
+          type: boolean
+      required:
+        - ok
+
+    LuckyUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        telegram_id:
+          type: string
+        profile_id:
+          type: integer
+        username:
+          type: string
+          nullable: true
+        balance_usdt:
+          type: number
+        lucky_mode:
+          type: boolean
+        lucky_until:
+          type: string
+          nullable: true
+        lucky_max_wins:
+          type: integer
+          nullable: true
+        lucky_wins_used:
+          type: integer
+
+    LuckyUsersResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/LuckyUser"
+        total:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      required:
+        - ok
+
+    SetLuckyModeBody:
+      type: object
+      properties:
+        target_telegram_id:
+          type: string
+        enabled:
+          type: boolean
+        reason:
+          type: string
+        until:
+          type: string
+          nullable: true
+        max_wins:
+          type: integer
+          nullable: true
+      required:
+        - target_telegram_id
+        - enabled
+        - reason
+
+    SetLuckyModeResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        lucky_mode:
+          type: boolean
+        lucky_until:
+          type: string
+          nullable: true
+        lucky_max_wins:
+          type: integer
+          nullable: true
+        lucky_wins_used:
+          type: integer
+      required:
+        - ok
+
+    LuckyHistoryEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        admin_id:
+          type: string
+        action:
+          type: string
+        before:
+          type: string
+        after:
+          type: string
+        reason:
+          type: string
+        created_at:
+          type: string
+
+    LuckyHistoryResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/LuckyHistoryEntry"
+      required:
+        - ok
+
+    OverrideTradeBody:
+      type: object
+      properties:
+        result:
+          type: string
+          enum: [win, loss]
+      required:
+        - result
+
+    OverrideTradeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            trade_id:
+              type: integer
+            new_result:
+              type: string
+        message:
+          type: string
+      required:
+        - success
+
+    WithdrawalsListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        withdrawals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Withdrawal"
+        total:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      required:
+        - ok
+
+    WithdrawalActionBody:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [approve, reject]
+        reason:
+          type: string
+          nullable: true
+      required:
+        - action
+
+    WithdrawalActionResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        status:
+          type: string
+        refunded:
+          type: number
+          nullable: true
+      required:
+        - ok
+
+    BroadcastBody:
+      type: object
+      properties:
+        text:
+          type: string
+        filter:
+          type: string
+          nullable: true
+      required:
+        - text
+
+    BroadcastResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        sent:
+          type: integer
+        failed:
+          type: integer
+        total:
+          type: integer
+      required:
+        - ok
+
+    CreateCheckBody:
+      type: object
+      properties:
+        amount_usdt:
+          type: number
+        expires_in_hours:
+          type: integer
+          default: 24
+      required:
+        - amount_usdt
+
+    CreateCheckResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        check_code:
+          type: string
+        check_link:
+          type: string
+        amount_usdt:
+          type: number
+        expires_at:
+          type: string
+        admin_balance:
+          type: number
+      required:
+        - ok
+
+    ChatUnreadUser:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        profile_id:
+          type: integer
+        username:
+          type: string
+          nullable: true
+        telegram_id:
+          type: string
+        unread_count:
+          type: integer
+
+    ChatUnreadResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatUnreadUser"
+      required:
+        - success
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        is_from_admin:
+          type: boolean
+        read:
+          type: boolean
+        created_at:
+          type: string
+
+    ChatUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        profile_id:
+          type: integer
+        telegram_id:
+          type: string
+        username:
+          type: string
+          nullable: true
+        telegram_link:
+          type: string
+
+    ChatHistoryData:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/ChatUser"
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+
+    ChatHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/ChatHistoryData"
+      required:
+        - success
+
+    SendChatMessageBody:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    SendChatMessageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    AdminLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        admin_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        action:
+          type: string
+        before_value:
+          type: string
+          nullable: true
+        after_value:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        details:
+          type: object
+          nullable: true
+        created_at:
+          type: string
+
+    AdminLogsResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminLog"
+        total:
+          type: integer
+        page:
+          type: integer
+        pages:
+          type: integer
+      required:
+        - ok
