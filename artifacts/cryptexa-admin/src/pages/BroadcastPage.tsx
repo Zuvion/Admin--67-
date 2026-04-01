@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function BroadcastPage() {
   const { toast } = useToast();
   const [text, setText] = useState("");
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("all");
   const [sent, setSent] = useState(false);
   const [sentCount, setSentCount] = useState(0);
   const [failedCount, setFailedCount] = useState(0);
@@ -22,7 +22,7 @@ export default function BroadcastPage() {
       const result = await broadcastMutation.mutateAsync({
         data: {
           text,
-          filter: filter || null,
+          filter: filter === "all" ? null : filter,
         }
       });
       setSentCount(result.sent ?? 0);
@@ -39,7 +39,7 @@ export default function BroadcastPage() {
     setSent(false);
     setSentCount(0);
     setFailedCount(0);
-    setFilter("");
+    setFilter("all");
   };
 
   const audienceLabel = () => {
@@ -88,7 +88,7 @@ export default function BroadcastPage() {
                   <SelectValue placeholder="Все пользователи" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border">
-                  <SelectItem value="">Все пользователи</SelectItem>
+                  <SelectItem value="all">Все пользователи</SelectItem>
                   <SelectItem value="premium">Премиум пользователи</SelectItem>
                   <SelectItem value="active">Активные (последние 7 дней)</SelectItem>
                   <SelectItem value="with_balance">С балансом</SelectItem>
