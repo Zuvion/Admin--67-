@@ -9,7 +9,7 @@ import { fmtDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle, Send, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,23 +20,28 @@ export default function SupportPage() {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: unreadData, isLoading: unreadLoading } = useGetChatUnread({
+  const { data: unreadData, isLoading: unreadLoading, refetch: refetchUnread } = useGetChatUnread({
     query: {
       queryKey: getGetChatUnreadQueryKey(),
-      refetchInterval: 10000
+      refetchInterval: 3000
     }
   });
 
-  const { data: historyData, isLoading: historyLoading } = useGetChatHistory(
+  const { data: historyData, isLoading: historyLoading, refetch: refetchHistory } = useGetChatHistory(
     selectedUserId!,
     {
       query: {
         queryKey: getGetChatHistoryQueryKey(selectedUserId!),
         enabled: selectedUserId !== null,
-        refetchInterval: 10000
+        refetchInterval: 3000
       }
     }
   );
+
+  const handleRefresh = () => {
+    refetchUnread();
+    if (selectedUserId !== null) refetchHistory();
+  };
 
   const sendMutation = useSendChatMessage();
 
@@ -76,7 +81,13 @@ export default function SupportPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Поддержка</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Поддержка</h1>
+        <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-2 text-xs">
+          <RefreshCw size={13} />
+          Обновить
+        </Button>
+      </div>
 
       <div className="glass-card overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
         <div className="flex h-full">
