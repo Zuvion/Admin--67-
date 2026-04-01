@@ -25,8 +25,16 @@ export default function LoginPage() {
       } else {
         setError("Неверный пароль");
       }
-    } catch {
-      setError("Неверный пароль");
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+      const data = (err as { data?: { error?: string } })?.data;
+      if (status === 401) {
+        setError("Неверный пароль");
+      } else if (status === 500 && data?.error) {
+        setError(`Ошибка сервера: ${data.error}`);
+      } else {
+        setError("Ошибка подключения к серверу");
+      }
     }
   };
 
