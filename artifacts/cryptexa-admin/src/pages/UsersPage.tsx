@@ -10,11 +10,11 @@ import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
-  { value: "", label: "All" },
-  { value: "premium", label: "Premium" },
-  { value: "blocked", label: "Blocked" },
-  { value: "verified", label: "Verified" },
-  { value: "with_balance", label: "With Balance" },
+  { value: "", label: "Все" },
+  { value: "premium", label: "Премиум" },
+  { value: "blocked", label: "Заблокированные" },
+  { value: "verified", label: "Верифицированные" },
+  { value: "with_balance", label: "С балансом" },
 ];
 
 function useDebounce(value: string, delay: number) {
@@ -42,13 +42,13 @@ export default function UsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Users</h1>
+      <h1 className="text-2xl font-bold mb-6">Пользователи</h1>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by username, Telegram ID, profile ID..."
+            placeholder="Поиск по имени, Telegram ID, profile ID..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-9 bg-muted border-border"
@@ -74,17 +74,17 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Desktop table */}
+      {/* Таблица (десктоп) */}
       <div className="hidden md:block glass-card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground text-xs uppercase">
               <th className="text-left px-4 py-3 font-medium">ID</th>
-              <th className="text-left px-4 py-3 font-medium">Username</th>
-              <th className="text-left px-4 py-3 font-medium">Balance</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Win Rate</th>
-              <th className="text-left px-4 py-3 font-medium">Online</th>
+              <th className="text-left px-4 py-3 font-medium">Пользователь</th>
+              <th className="text-left px-4 py-3 font-medium">Баланс</th>
+              <th className="text-left px-4 py-3 font-medium">Статус</th>
+              <th className="text-left px-4 py-3 font-medium">Вин рейт</th>
+              <th className="text-left px-4 py-3 font-medium">Онлайн</th>
             </tr>
           </thead>
           <tbody>
@@ -120,9 +120,9 @@ export default function UsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
-                        {user.is_premium && <Badge variant="outline" className="text-[10px] border-yellow-500/50 text-yellow-400">Premium</Badge>}
-                        {user.is_verified && <Badge variant="outline" className="text-[10px] border-success/50 text-success">Verified</Badge>}
-                        {user.is_blocked && <Badge variant="outline" className="text-[10px] border-destructive/50 text-destructive">Blocked</Badge>}
+                        {user.is_premium && <Badge variant="outline" className="text-[10px] border-yellow-500/50 text-yellow-400">Премиум</Badge>}
+                        {user.is_verified && <Badge variant="outline" className="text-[10px] border-success/50 text-success">Верифицирован</Badge>}
+                        {user.is_blocked && <Badge variant="outline" className="text-[10px] border-destructive/50 text-destructive">Заблокирован</Badge>}
                         {user.lucky_mode && <Badge variant="outline" className="text-[10px] border-primary/50 text-primary">Lucky</Badge>}
                       </div>
                     </td>
@@ -144,7 +144,7 @@ export default function UsersPage() {
         </table>
       </div>
 
-      {/* Mobile cards */}
+      {/* Карточки (мобайл) */}
       <div className="md:hidden space-y-3">
         {isLoading
           ? Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)
@@ -165,9 +165,9 @@ export default function UsersPage() {
                 </div>
                 <p className="font-mono font-bold text-lg">{fmtNum(user.balance_usdt ?? 0)} <span className="text-xs text-muted-foreground">USDT</span></p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {user.is_premium && <Badge variant="outline" className="text-[10px] border-yellow-500/50 text-yellow-400">Premium</Badge>}
-                  {user.is_verified && <Badge variant="outline" className="text-[10px] border-success/50 text-success">Verified</Badge>}
-                  {user.is_blocked && <Badge variant="outline" className="text-[10px] border-destructive/50 text-destructive">Blocked</Badge>}
+                  {user.is_premium && <Badge variant="outline" className="text-[10px] border-yellow-500/50 text-yellow-400">Премиум</Badge>}
+                  {user.is_verified && <Badge variant="outline" className="text-[10px] border-success/50 text-success">Верифицирован</Badge>}
+                  {user.is_blocked && <Badge variant="outline" className="text-[10px] border-destructive/50 text-destructive">Заблокирован</Badge>}
                   {user.lucky_mode && <Badge variant="outline" className="text-[10px] border-primary/50 text-primary">Lucky</Badge>}
                 </div>
               </div>
@@ -176,7 +176,7 @@ export default function UsersPage() {
         }
       </div>
 
-      {/* Pagination */}
+      {/* Пагинация */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-6">
           <Button
@@ -189,7 +189,7 @@ export default function UsersPage() {
             <ChevronLeft size={14} />
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            Стр. {page} из {totalPages}
           </span>
           <Button
             variant="outline"

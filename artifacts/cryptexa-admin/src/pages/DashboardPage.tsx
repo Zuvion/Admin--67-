@@ -2,7 +2,7 @@ import { useGetDashboard, useGetOnlineCount, getGetDashboardQueryKey, getGetOnli
 import { Link } from "wouter";
 import { fmtNum, isOnline, timeAgo } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Zap, TrendingUp, TrendingDown, ArrowDownCircle, Activity, DollarSign, Gem } from "lucide-react";
+import { Users, Zap, TrendingUp, ArrowDownCircle, Activity, DollarSign, Gem } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -23,7 +23,7 @@ function StatCard({ label, value, icon, color = "default", pulse }: StatCardProp
   };
 
   return (
-    <div className="glass-card p-4" data-testid={`card-stat-${label.toLowerCase().replace(/\s/g, "-")}`}>
+    <div className="glass-card p-4" data-testid={`card-stat-${label}`}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</span>
         <div className={cn("p-2 rounded-lg bg-white/5", colorMap[color])}>
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   if (dashLoading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-6">Дашборд</h1>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Array(8).fill(0).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
@@ -67,30 +67,30 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <span className="text-xs text-muted-foreground">Auto-refreshes every 30s</span>
+        <h1 className="text-2xl font-bold">Дашборд</h1>
+        <span className="text-xs text-muted-foreground">Обновляется каждые 30 сек</span>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Total Users" value={fmtNum(stats?.total_users ?? 0, 0)} icon={<Users size={16} />} />
-        <StatCard label="Online Now" value={fmtNum(online?.count ?? 0, 0)} icon={<Activity size={16} />} color="green" pulse />
-        <StatCard label="Deposits Today" value={`$${fmtNum(stats?.deposits_today ?? 0)}`} icon={<DollarSign size={16} />} color="green" />
-        <StatCard label="Deposits Week" value={`$${fmtNum(stats?.deposits_week ?? 0)}`} icon={<TrendingUp size={16} />} />
-        <StatCard label="Deposits Month" value={`$${fmtNum(stats?.deposits_month ?? 0)}`} icon={<TrendingUp size={16} />} />
-        <StatCard label="Active Trades" value={fmtNum(stats?.active_trades ?? 0, 0)} icon={<Zap size={16} />} color="purple" />
+        <StatCard label="Пользователи" value={fmtNum(stats?.total_users ?? 0, 0)} icon={<Users size={16} />} />
+        <StatCard label="Онлайн" value={fmtNum(online?.count ?? 0, 0)} icon={<Activity size={16} />} color="green" pulse />
+        <StatCard label="Депозиты сегодня" value={`$${fmtNum(stats?.deposits_today ?? 0)}`} icon={<DollarSign size={16} />} color="green" />
+        <StatCard label="Депозиты за неделю" value={`$${fmtNum(stats?.deposits_week ?? 0)}`} icon={<TrendingUp size={16} />} />
+        <StatCard label="Депозиты за месяц" value={`$${fmtNum(stats?.deposits_month ?? 0)}`} icon={<TrendingUp size={16} />} />
+        <StatCard label="Активные сделки" value={fmtNum(stats?.active_trades ?? 0, 0)} icon={<Zap size={16} />} color="purple" />
         <StatCard
-          label="Pending Withdrawals"
+          label="Ожидают вывода"
           value={fmtNum(stats?.pending_withdrawals ?? 0, 0)}
           icon={<ArrowDownCircle size={16} />}
           color={(stats?.pending_withdrawals ?? 0) > 0 ? "red" : "default"}
         />
-        <StatCard label="Total Balance" value={`$${fmtNum(stats?.total_balance ?? 0)}`} icon={<Gem size={16} />} color="gradient" />
+        <StatCard label="Общий баланс" value={`$${fmtNum(stats?.total_balance ?? 0)}`} icon={<Gem size={16} />} color="gradient" />
       </div>
 
       <div className="glass-card p-5">
         <h2 className="text-base font-semibold mb-4 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-success pulse-green inline-block" />
-          Online Users {online?.count ? `(${online.count})` : ""}
+          Онлайн сейчас {online?.count ? `(${online.count})` : ""}
         </h2>
 
         {onlineLoading ? (
@@ -98,7 +98,7 @@ export default function DashboardPage() {
             {Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-12 rounded-lg" />)}
           </div>
         ) : (online?.users?.length ?? 0) === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-4">No users online</p>
+          <p className="text-muted-foreground text-sm text-center py-4">Нет пользователей онлайн</p>
         ) : (
           <div className="space-y-2">
             {online?.users?.map((user) => (

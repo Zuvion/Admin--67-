@@ -28,9 +28,9 @@ export default function BroadcastPage() {
       setSentCount(result.sent ?? 0);
       setFailedCount(result.failed ?? 0);
       setSent(true);
-      toast({ title: `Broadcast sent to ${result.sent ?? 0} users` });
+      toast({ title: `Рассылка отправлена ${result.sent ?? 0} пользователям` });
     } catch {
-      toast({ title: "Failed to send broadcast", variant: "destructive" });
+      toast({ title: "Ошибка при отправке рассылки", variant: "destructive" });
     }
   };
 
@@ -42,69 +42,76 @@ export default function BroadcastPage() {
     setFilter("");
   };
 
+  const audienceLabel = () => {
+    if (filter === "premium") return "премиум";
+    if (filter === "active") return "активным";
+    if (filter === "with_balance") return "с балансом";
+    return "ВСЕМ";
+  };
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-xl bg-primary/20">
           <Megaphone size={20} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Broadcast</h1>
+        <h1 className="text-2xl font-bold">Рассылка</h1>
       </div>
 
       {sent ? (
         <div className="glass-card p-12 text-center max-w-lg">
           <CheckCircle size={48} className="text-success mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">Broadcast Sent!</h2>
+          <h2 className="text-xl font-bold mb-2">Рассылка отправлена!</h2>
           <div className="flex justify-center gap-8 my-4">
             <div>
               <p className="text-3xl font-bold text-success">{sentCount}</p>
-              <p className="text-xs text-muted-foreground">Delivered</p>
+              <p className="text-xs text-muted-foreground">Доставлено</p>
             </div>
             {failedCount > 0 && (
               <div>
                 <p className="text-3xl font-bold text-destructive">{failedCount}</p>
-                <p className="text-xs text-muted-foreground">Failed</p>
+                <p className="text-xs text-muted-foreground">Ошибок</p>
               </div>
             )}
           </div>
           <Button className="mt-4 gradient-btn text-white" onClick={handleReset} data-testid="button-new-broadcast">
-            New Broadcast
+            Новая рассылка
           </Button>
         </div>
       ) : (
         <div className="max-w-lg">
           <div className="glass-card p-6 space-y-5">
             <div>
-              <label className="text-sm font-medium mb-2 block">Audience Filter</label>
+              <label className="text-sm font-medium mb-2 block">Аудитория</label>
               <Select value={filter} onValueChange={setFilter}>
                 <SelectTrigger className="bg-muted border-border" data-testid="select-filter">
-                  <SelectValue placeholder="All users" />
+                  <SelectValue placeholder="Все пользователи" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border">
-                  <SelectItem value="">All Users</SelectItem>
-                  <SelectItem value="premium">Premium Users</SelectItem>
-                  <SelectItem value="active">Active Users (last 7 days)</SelectItem>
-                  <SelectItem value="with_balance">Users with Balance</SelectItem>
+                  <SelectItem value="">Все пользователи</SelectItem>
+                  <SelectItem value="premium">Премиум пользователи</SelectItem>
+                  <SelectItem value="active">Активные (последние 7 дней)</SelectItem>
+                  <SelectItem value="with_balance">С балансом</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Message</label>
+              <label className="text-sm font-medium mb-2 block">Текст сообщения</label>
               <Textarea
-                placeholder="Enter your broadcast message...&#10;&#10;HTML is supported: <b>bold</b>, <i>italic</i>, <a href='...'>link</a>"
+                placeholder={"Введите текст рассылки...\n\nПоддерживается HTML: <b>жирный</b>, <i>курсив</i>, <a href='...'>ссылка</a>"}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className="bg-muted border-border min-h-[140px] resize-none"
                 data-testid="textarea-broadcast"
               />
-              <p className="text-xs text-muted-foreground mt-1">{text.length} characters</p>
+              <p className="text-xs text-muted-foreground mt-1">{text.length} символов</p>
             </div>
 
-            {/* Preview */}
+            {/* Превью */}
             {text && (
               <div className="p-4 bg-muted/50 rounded-xl border border-border">
-                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase">Preview</p>
+                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase">Превью</p>
                 <div className="bg-card rounded-xl p-4">
                   <p className="text-sm whitespace-pre-wrap"
                     dangerouslySetInnerHTML={{
@@ -120,10 +127,9 @@ export default function BroadcastPage() {
             )}
 
             <div className="p-4 bg-warning/10 border border-warning/20 rounded-xl">
-              <p className="text-sm text-warning font-medium">⚠️ Confirm before sending</p>
+              <p className="text-sm text-warning font-medium">⚠️ Подтвердите перед отправкой</p>
               <p className="text-xs text-muted-foreground mt-1">
-                This will send a message to {filter === "premium" ? "premium" : filter === "active" ? "active" : filter === "with_balance" ? "users with balance" : "ALL"} users.
-                This action cannot be undone.
+                Сообщение будет отправлено {audienceLabel()} пользователям. Это действие нельзя отменить.
               </p>
             </div>
 
@@ -134,7 +140,7 @@ export default function BroadcastPage() {
               data-testid="button-send-broadcast"
             >
               <Send size={16} />
-              {broadcastMutation.isPending ? "Sending..." : "Send Broadcast"}
+              {broadcastMutation.isPending ? "Отправка..." : "Отправить рассылку"}
             </Button>
           </div>
         </div>

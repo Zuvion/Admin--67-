@@ -36,16 +36,13 @@ export default function UserDetailPage() {
   const statusMutation = useSetUserStatus();
   const messageMutation = useSendUserMessage();
 
-  // Balance modal state
   const [balanceAction, setBalanceAction] = useState<"add" | "subtract" | "set">("add");
   const [balanceAmount, setBalanceAmount] = useState("");
   const [balanceOpen, setBalanceOpen] = useState(false);
 
-  // Win rate modal state
   const [winRate, setWinRate] = useState<number>(73);
   const [winRateOpen, setWinRateOpen] = useState(false);
 
-  // Message modal state
   const [messageText, setMessageText] = useState("");
   const [messageOpen, setMessageOpen] = useState(false);
 
@@ -54,7 +51,7 @@ export default function UserDetailPage() {
   }
 
   if (!data?.user) {
-    return <div className="text-center py-12 text-muted-foreground">User not found</div>;
+    return <div className="text-center py-12 text-muted-foreground">Пользователь не найден</div>;
   }
 
   const user = data.user;
@@ -67,12 +64,12 @@ export default function UserDetailPage() {
         profileId: id,
         data: { action: balanceAction, amount: Number(balanceAmount) }
       });
-      toast({ title: "Balance updated" });
+      toast({ title: "Баланс обновлён" });
       setBalanceOpen(false);
       setBalanceAmount("");
       refreshUser();
     } catch {
-      toast({ title: "Failed to update balance", variant: "destructive" });
+      toast({ title: "Ошибка при изменении баланса", variant: "destructive" });
     }
   };
 
@@ -82,11 +79,11 @@ export default function UserDetailPage() {
         profileId: id,
         data: { custom_win_rate: reset ? null : winRate / 100 }
       });
-      toast({ title: reset ? "Win rate reset to default" : "Win rate updated" });
+      toast({ title: reset ? "Вин рейт сброшен до стандартного" : "Вин рейт обновлён" });
       setWinRateOpen(false);
       refreshUser();
     } catch {
-      toast({ title: "Failed to update win rate", variant: "destructive" });
+      toast({ title: "Ошибка при изменении вин рейта", variant: "destructive" });
     }
   };
 
@@ -96,22 +93,28 @@ export default function UserDetailPage() {
         profileId: id,
         data: { action, reason: reason ?? null }
       });
-      toast({ title: "Status updated" });
+      toast({ title: "Статус обновлён" });
       refreshUser();
     } catch {
-      toast({ title: "Failed to update status", variant: "destructive" });
+      toast({ title: "Ошибка при изменении статуса", variant: "destructive" });
     }
   };
 
   const handleMessage = async () => {
     try {
       await messageMutation.mutateAsync({ profileId: id, data: { text: messageText } });
-      toast({ title: "Message sent" });
+      toast({ title: "Сообщение отправлено" });
       setMessageOpen(false);
       setMessageText("");
     } catch {
-      toast({ title: "Failed to send message", variant: "destructive" });
+      toast({ title: "Ошибка при отправке сообщения", variant: "destructive" });
     }
+  };
+
+  const balanceActionLabel = (a: string) => {
+    if (a === "add") return "Начислить";
+    if (a === "subtract") return "Списать";
+    return "Установить";
   };
 
   return (
@@ -120,10 +123,10 @@ export default function UserDetailPage() {
         <button onClick={() => setLocation("/users")} className="text-muted-foreground hover:text-foreground" data-testid="button-back">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold">User #{user.profile_id}</h1>
+        <h1 className="text-xl font-bold">Пользователь #{user.profile_id}</h1>
       </div>
 
-      {/* Profile Card */}
+      {/* Карточка профиля */}
       <div className="glass-card p-5 mb-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
@@ -137,18 +140,18 @@ export default function UserDetailPage() {
             <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
               <div><span className="text-muted-foreground">Profile ID:</span> <span className="font-mono">{user.profile_id}</span></div>
               <div><span className="text-muted-foreground">Telegram ID:</span> <span className="font-mono">{user.telegram_id}</span></div>
-              <div><span className="text-muted-foreground">Language:</span> {user.language}</div>
-              <div><span className="text-muted-foreground">Referral Code:</span> <span className="font-mono">{user.referral_code || "—"}</span></div>
-              <div><span className="text-muted-foreground">Referred by:</span> {user.referred_by || "—"}</div>
-              <div><span className="text-muted-foreground">Referral Count:</span> {user.referral_count}</div>
-              <div><span className="text-muted-foreground">Referral Earnings:</span> {fmtNum(user.referral_earnings ?? 0)} USDT</div>
-              <div><span className="text-muted-foreground">Registered:</span> {fmtDate(user.created_at)}</div>
-              <div><span className="text-muted-foreground">Last Online:</span> {timeAgo(user.last_online_at ?? null)}</div>
+              <div><span className="text-muted-foreground">Язык:</span> {user.language}</div>
+              <div><span className="text-muted-foreground">Реф. код:</span> <span className="font-mono">{user.referral_code || "—"}</span></div>
+              <div><span className="text-muted-foreground">Пригласил:</span> {user.referred_by || "—"}</div>
+              <div><span className="text-muted-foreground">Рефералов:</span> {user.referral_count}</div>
+              <div><span className="text-muted-foreground">Реф. заработок:</span> {fmtNum(user.referral_earnings ?? 0)} USDT</div>
+              <div><span className="text-muted-foreground">Регистрация:</span> {fmtDate(user.created_at)}</div>
+              <div><span className="text-muted-foreground">Последний раз:</span> {timeAgo(user.last_online_at ?? null)}</div>
             </div>
           </div>
 
           <div className="text-center sm:text-right">
-            <p className="text-xs text-muted-foreground mb-1">Balance</p>
+            <p className="text-xs text-muted-foreground mb-1">Баланс</p>
             <p className="text-3xl font-bold font-mono gradient-text" data-testid="text-balance">{fmtNum(user.balance_usdt ?? 0)}</p>
             <p className="text-sm text-muted-foreground">USDT</p>
 
@@ -164,66 +167,66 @@ export default function UserDetailPage() {
           </div>
         </div>
 
-        {/* Status badges */}
+        {/* Бейджи статуса */}
         <div className="flex flex-wrap gap-2 mt-4">
-          {user.is_premium && <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Premium</Badge>}
-          {user.is_verified && <Badge className="bg-success/20 text-success border-success/30">Verified</Badge>}
-          {user.is_blocked && <Badge className="bg-destructive/20 text-destructive border-destructive/30">Blocked{user.block_reason ? `: ${user.block_reason}` : ""}</Badge>}
+          {user.is_premium && <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Премиум</Badge>}
+          {user.is_verified && <Badge className="bg-success/20 text-success border-success/30">Верифицирован</Badge>}
+          {user.is_blocked && <Badge className="bg-destructive/20 text-destructive border-destructive/30">Заблокирован{user.block_reason ? `: ${user.block_reason}` : ""}</Badge>}
           {user.lucky_mode && <Badge className="bg-primary/20 text-primary border-primary/30">
-            Lucky Mode{user.lucky_until ? ` until ${fmtDate(user.lucky_until)}` : " (forever)"}
+            Lucky Mode{user.lucky_until ? ` до ${fmtDate(user.lucky_until)}` : " (бессрочно)"}
           </Badge>}
         </div>
 
-        {/* Win Rate & Lucky info */}
+        {/* Вин рейт и Lucky */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-border">
           <div>
-            <p className="text-xs text-muted-foreground">Win Rate</p>
+            <p className="text-xs text-muted-foreground">Вин рейт</p>
             <p className="font-mono font-bold" data-testid="text-win-rate">{fmtWinRate(user.custom_win_rate ?? null)}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Lucky Mode</p>
-            <p className="font-medium">{user.lucky_mode ? "On" : "Off"}</p>
+            <p className="font-medium">{user.lucky_mode ? "Вкл" : "Выкл"}</p>
           </div>
           {user.lucky_mode && (
             <>
               <div>
-                <p className="text-xs text-muted-foreground">Lucky Wins</p>
+                <p className="text-xs text-muted-foreground">Побед использовано</p>
                 <p className="font-mono">{user.lucky_wins_used} / {user.lucky_max_wins ?? "∞"}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Lucky Until</p>
-                <p className="text-sm">{user.lucky_until ? fmtDate(user.lucky_until) : "Forever"}</p>
+                <p className="text-xs text-muted-foreground">Действует до</p>
+                <p className="text-sm">{user.lucky_until ? fmtDate(user.lucky_until) : "Бессрочно"}</p>
               </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Кнопки действий */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-5">
-        {/* Balance */}
+        {/* Баланс */}
         <Dialog open={balanceOpen} onOpenChange={setBalanceOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="flex items-center gap-2" data-testid="button-change-balance">
-              <DollarSign size={14} /> Balance
+              <DollarSign size={14} /> Баланс
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-card border-border">
-            <DialogHeader><DialogTitle>Change Balance</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Изменить баланс</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Select value={balanceAction} onValueChange={(v) => setBalanceAction(v as "add" | "subtract" | "set")}>
                 <SelectTrigger className="bg-muted border-border" data-testid="select-balance-action">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border">
-                  <SelectItem value="add">Add</SelectItem>
-                  <SelectItem value="subtract">Subtract</SelectItem>
-                  <SelectItem value="set">Set</SelectItem>
+                  <SelectItem value="add">Начислить</SelectItem>
+                  <SelectItem value="subtract">Списать</SelectItem>
+                  <SelectItem value="set">Установить</SelectItem>
                 </SelectContent>
               </Select>
               <Input
                 type="number"
-                placeholder="Amount USDT"
+                placeholder="Сумма USDT"
                 value={balanceAmount}
                 onChange={(e) => setBalanceAmount(e.target.value)}
                 className="bg-muted border-border"
@@ -235,25 +238,25 @@ export default function UserDetailPage() {
                 disabled={balanceMutation.isPending}
                 data-testid="button-apply-balance"
               >
-                Apply
+                {balanceActionLabel(balanceAction)}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* Win Rate */}
+        {/* Вин рейт */}
         <Dialog open={winRateOpen} onOpenChange={setWinRateOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="flex items-center gap-2" data-testid="button-set-winrate">
-              <Target size={14} /> Win Rate
+              <Target size={14} /> Вин рейт
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-card border-border">
-            <DialogHeader><DialogTitle>Set Win Rate</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Установить вин рейт</DialogTitle></DialogHeader>
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Win Rate</span>
+                  <span className="text-sm text-muted-foreground">Вин рейт</span>
                   <span className="font-mono font-bold text-primary" data-testid="text-winrate-preview">{winRate}%</span>
                 </div>
                 <Slider
@@ -272,7 +275,7 @@ export default function UserDetailPage() {
                   disabled={winrateMutation.isPending}
                   data-testid="button-reset-winrate"
                 >
-                  Reset to Default
+                  Сбросить
                 </Button>
                 <Button
                   className="flex-1 gradient-btn text-white"
@@ -280,7 +283,7 @@ export default function UserDetailPage() {
                   disabled={winrateMutation.isPending}
                   data-testid="button-apply-winrate"
                 >
-                  Apply
+                  Применить
                 </Button>
               </div>
             </div>
@@ -295,7 +298,7 @@ export default function UserDetailPage() {
           disabled={statusMutation.isPending}
           data-testid="button-toggle-verify"
         >
-          <Shield size={14} /> {user.is_verified ? "Unverify" : "Verify"}
+          <Shield size={14} /> {user.is_verified ? "Снять верификацию" : "Верифицировать"}
         </Button>
 
         <Button
@@ -306,7 +309,7 @@ export default function UserDetailPage() {
           disabled={statusMutation.isPending}
           data-testid="button-toggle-premium"
         >
-          <Star size={14} /> {user.is_premium ? "Unpremium" : "Premium"}
+          <Star size={14} /> {user.is_premium ? "Снять премиум" : "Премиум"}
         </Button>
 
         <Button
@@ -317,21 +320,21 @@ export default function UserDetailPage() {
           disabled={statusMutation.isPending}
           data-testid="button-toggle-block"
         >
-          <Ban size={14} /> {user.is_blocked ? "Unblock" : "Block"}
+          <Ban size={14} /> {user.is_blocked ? "Разблокировать" : "Заблокировать"}
         </Button>
 
-        {/* Message */}
+        {/* Сообщение */}
         <Dialog open={messageOpen} onOpenChange={setMessageOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="flex items-center gap-2" data-testid="button-send-message">
-              <MessageSquare size={14} /> Message
+              <MessageSquare size={14} /> Сообщение
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-card border-border">
-            <DialogHeader><DialogTitle>Send Message</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Отправить сообщение</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Textarea
-                placeholder="Message text..."
+                placeholder="Текст сообщения..."
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 className="bg-muted border-border min-h-[100px]"
@@ -343,35 +346,35 @@ export default function UserDetailPage() {
                 disabled={messageMutation.isPending || !messageText.trim()}
                 data-testid="button-send-message-submit"
               >
-                Send
+                Отправить
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* History Tabs */}
+      {/* Вкладки истории */}
       <div className="glass-card p-4">
         <Tabs defaultValue="transactions">
           <TabsList className="bg-muted border-border mb-4">
-            <TabsTrigger value="transactions" data-testid="tab-transactions">Transactions ({data.transactions?.length ?? 0})</TabsTrigger>
-            <TabsTrigger value="trades" data-testid="tab-trades">Trades ({data.trades?.length ?? 0})</TabsTrigger>
-            <TabsTrigger value="withdrawals" data-testid="tab-withdrawals">Withdrawals ({data.withdrawals?.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="transactions" data-testid="tab-transactions">Транзакции ({data.transactions?.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="trades" data-testid="tab-trades">Сделки ({data.trades?.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="withdrawals" data-testid="tab-withdrawals">Выводы ({data.withdrawals?.length ?? 0})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="transactions">
             {!data.transactions?.length
-              ? <p className="text-muted-foreground text-sm text-center py-6">No transactions</p>
+              ? <p className="text-muted-foreground text-sm text-center py-6">Нет транзакций</p>
               : <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
                       <th className="text-left py-2 px-2">ID</th>
-                      <th className="text-left py-2 px-2">Type</th>
-                      <th className="text-left py-2 px-2">Amount</th>
-                      <th className="text-left py-2 px-2">Currency</th>
-                      <th className="text-left py-2 px-2">Status</th>
-                      <th className="text-left py-2 px-2">Date</th>
+                      <th className="text-left py-2 px-2">Тип</th>
+                      <th className="text-left py-2 px-2">Сумма</th>
+                      <th className="text-left py-2 px-2">Валюта</th>
+                      <th className="text-left py-2 px-2">Статус</th>
+                      <th className="text-left py-2 px-2">Дата</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -393,18 +396,18 @@ export default function UserDetailPage() {
 
           <TabsContent value="trades">
             {!data.trades?.length
-              ? <p className="text-muted-foreground text-sm text-center py-6">No trades</p>
+              ? <p className="text-muted-foreground text-sm text-center py-6">Нет сделок</p>
               : <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
                       <th className="text-left py-2 px-2">ID</th>
-                      <th className="text-left py-2 px-2">Pair</th>
-                      <th className="text-left py-2 px-2">Side</th>
-                      <th className="text-left py-2 px-2">Amount</th>
-                      <th className="text-left py-2 px-2">Result</th>
-                      <th className="text-left py-2 px-2">Payout</th>
-                      <th className="text-left py-2 px-2">Date</th>
+                      <th className="text-left py-2 px-2">Пара</th>
+                      <th className="text-left py-2 px-2">Сторона</th>
+                      <th className="text-left py-2 px-2">Сумма</th>
+                      <th className="text-left py-2 px-2">Результат</th>
+                      <th className="text-left py-2 px-2">Выплата</th>
+                      <th className="text-left py-2 px-2">Дата</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -415,8 +418,12 @@ export default function UserDetailPage() {
                         <td className="py-2 px-2">{t.side}</td>
                         <td className="py-2 px-2 font-mono">{fmtNum(t.amount_usdt ?? 0)}</td>
                         <td className="py-2 px-2">
-                          <span className={cn("font-medium", t.result === "win" ? "text-success" : t.result === "loss" ? "text-destructive" : "text-muted-foreground")}>
-                            {t.result || t.status}
+                          <span className={cn("font-medium",
+                            t.result === "win" ? "text-success" :
+                            t.result === "loss" ? "text-destructive" :
+                            "text-muted-foreground"
+                          )}>
+                            {t.result === "win" ? "Победа" : t.result === "loss" ? "Поражение" : t.result || t.status}
                           </span>
                         </td>
                         <td className="py-2 px-2 font-mono">{t.payout != null ? fmtNum(t.payout) : "—"}</td>
@@ -431,17 +438,17 @@ export default function UserDetailPage() {
 
           <TabsContent value="withdrawals">
             {!data.withdrawals?.length
-              ? <p className="text-muted-foreground text-sm text-center py-6">No withdrawals</p>
+              ? <p className="text-muted-foreground text-sm text-center py-6">Нет выводов</p>
               : <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
                       <th className="text-left py-2 px-2">ID</th>
-                      <th className="text-left py-2 px-2">Amount</th>
-                      <th className="text-left py-2 px-2">Address</th>
-                      <th className="text-left py-2 px-2">Network</th>
-                      <th className="text-left py-2 px-2">Status</th>
-                      <th className="text-left py-2 px-2">Date</th>
+                      <th className="text-left py-2 px-2">Сумма</th>
+                      <th className="text-left py-2 px-2">Адрес</th>
+                      <th className="text-left py-2 px-2">Сеть</th>
+                      <th className="text-left py-2 px-2">Статус</th>
+                      <th className="text-left py-2 px-2">Дата</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -456,7 +463,9 @@ export default function UserDetailPage() {
                             w.status === "pending" ? "border-warning/50 text-warning" :
                             w.status === "completed" ? "border-success/50 text-success" :
                             "border-destructive/50 text-destructive"
-                          )}>{w.status}</Badge>
+                          )}>
+                            {w.status === "pending" ? "Ожидает" : w.status === "completed" ? "Выполнен" : "Отменён"}
+                          </Badge>
                         </td>
                         <td className="py-2 px-2 text-muted-foreground">{fmtDate(w.created_at ?? "")}</td>
                       </tr>

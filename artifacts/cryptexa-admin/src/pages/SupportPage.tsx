@@ -41,7 +41,6 @@ export default function SupportPage() {
   const sendMutation = useSendChatMessage();
 
   const users = unreadData?.data ?? [];
-  // ChatHistoryResponse.data = { user, messages }
   const messages = historyData?.data?.messages ?? [];
   const selectedUserInfo = historyData?.data?.user;
 
@@ -54,7 +53,6 @@ export default function SupportPage() {
     const text = message;
     setMessage("");
     try {
-      // SendChatMessageBody requires { message: string }
       await sendMutation.mutateAsync({
         userId: selectedUserId,
         data: { message: text }
@@ -63,7 +61,7 @@ export default function SupportPage() {
       queryClient.invalidateQueries({ queryKey: getGetChatUnreadQueryKey() });
     } catch {
       setMessage(text);
-      toast({ title: "Failed to send message", variant: "destructive" });
+      toast({ title: "Ошибка при отправке сообщения", variant: "destructive" });
     }
   };
 
@@ -78,14 +76,14 @@ export default function SupportPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Support Chat</h1>
+      <h1 className="text-2xl font-bold mb-6">Поддержка</h1>
 
       <div className="glass-card overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
         <div className="flex h-full">
-          {/* Users list */}
+          {/* Список диалогов */}
           <div className="w-48 sm:w-64 flex-shrink-0 border-r border-border flex flex-col">
             <div className="p-3 border-b border-border">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Conversations</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Диалоги</p>
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               {unreadLoading
@@ -93,7 +91,7 @@ export default function SupportPage() {
                     {Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
                   </div>
                 : users.length === 0
-                  ? <div className="p-4 text-center text-xs text-muted-foreground">No conversations</div>
+                  ? <div className="p-4 text-center text-xs text-muted-foreground">Нет диалогов</div>
                   : users.map((u) => {
                     const uid = u.user_id ?? u.profile_id ?? 0;
                     return (
@@ -121,33 +119,33 @@ export default function SupportPage() {
             </div>
           </div>
 
-          {/* Chat area */}
+          {/* Область чата */}
           <div className="flex-1 flex flex-col min-w-0">
             {selectedUserId === null ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center px-4">
                   <MessageCircle size={40} className="text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground text-sm">Select a conversation to start chatting</p>
+                  <p className="text-muted-foreground text-sm">Выберите диалог для начала общения</p>
                 </div>
               </div>
             ) : (
               <>
-                {/* Chat header */}
+                {/* Шапка чата */}
                 <div className="p-3 border-b border-border">
                   <p className="font-medium text-sm">
-                    @{selectedUserInfo?.username || selectedUserData?.username || `User #${selectedUserId}`}
+                    @{selectedUserInfo?.username || selectedUserData?.username || `Пользователь #${selectedUserId}`}
                   </p>
                   {selectedUserInfo?.profile_id && (
                     <p className="text-xs text-muted-foreground">Profile ID: {selectedUserInfo.profile_id}</p>
                   )}
                 </div>
 
-                {/* Messages */}
+                {/* Сообщения */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
                   {historyLoading
                     ? <div className="space-y-3">{Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>
                     : messages.length === 0
-                      ? <div className="text-center text-muted-foreground text-sm py-8">No messages yet. Start the conversation.</div>
+                      ? <div className="text-center text-muted-foreground text-sm py-8">Сообщений нет. Начните разговор.</div>
                       : messages.map((msg) => {
                         const isAdmin = msg.is_from_admin;
                         return (
@@ -170,10 +168,10 @@ export default function SupportPage() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input */}
+                {/* Поле ввода */}
                 <div className="p-3 border-t border-border flex gap-2">
                   <Input
-                    placeholder="Type a message... (Enter to send)"
+                    placeholder="Напишите сообщение... (Enter для отправки)"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={handleKeyDown}

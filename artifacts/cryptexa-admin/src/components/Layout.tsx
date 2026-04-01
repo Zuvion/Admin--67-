@@ -30,16 +30,16 @@ function useBadges() {
 
 function buildNavItems(chatUnread: number, pendingWithdrawals: number): NavItem[] {
   return [
-    { icon: <LayoutDashboard size={18} />, label: "Dashboard", path: "/" },
-    { icon: <Users size={18} />, label: "Users", path: "/users" },
+    { icon: <LayoutDashboard size={18} />, label: "Дашборд", path: "/" },
+    { icon: <Users size={18} />, label: "Пользователи", path: "/users" },
     { icon: <Clover size={18} />, label: "Lucky Mode", path: "/lucky" },
-    { icon: <TrendingUp size={18} />, label: "Trades", path: "/trades" },
-    { icon: <ArrowDownCircle size={18} />, label: "Withdrawals", path: "/withdrawals", badge: pendingWithdrawals },
-    { icon: <Megaphone size={18} />, label: "Broadcast", path: "/broadcast" },
-    { icon: <Gift size={18} />, label: "Checks", path: "/checks" },
-    { icon: <MessageCircle size={18} />, label: "Support", path: "/support", badge: chatUnread },
-    { icon: <ScrollText size={18} />, label: "Logs", path: "/logs" },
-    { icon: <Settings size={18} />, label: "Settings", path: "/settings" },
+    { icon: <TrendingUp size={18} />, label: "Сделки", path: "/trades" },
+    { icon: <ArrowDownCircle size={18} />, label: "Выводы", path: "/withdrawals", badge: pendingWithdrawals },
+    { icon: <Megaphone size={18} />, label: "Рассылка", path: "/broadcast" },
+    { icon: <Gift size={18} />, label: "Чеки", path: "/checks" },
+    { icon: <MessageCircle size={18} />, label: "Поддержка", path: "/support", badge: chatUnread },
+    { icon: <ScrollText size={18} />, label: "Логи", path: "/logs" },
+    { icon: <Settings size={18} />, label: "Настройки", path: "/settings" },
   ];
 }
 
@@ -52,7 +52,7 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed?: boolean }) {
   return (
     <Link href={item.path}>
       <div
-        data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+        data-testid={`nav-${item.path.replace("/", "") || "dashboard"}`}
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative cursor-pointer",
           isActive
@@ -93,7 +93,7 @@ function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => 
         {!collapsed && (
           <div>
             <span className="text-sm font-bold gradient-text">CRYPTEXA</span>
-            <span className="text-xs text-muted-foreground block">Admin Panel</span>
+            <span className="text-xs text-muted-foreground block">Панель Администратора</span>
           </div>
         )}
         <button
@@ -120,7 +120,7 @@ function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => 
           )}
         >
           <LogOut size={18} />
-          {!collapsed && <span className="text-sm font-medium">Logout</span>}
+          {!collapsed && <span className="text-sm font-medium">Выйти</span>}
         </button>
       </div>
     </div>
@@ -144,7 +144,7 @@ function MobileNav() {
           return (
             <Link key={item.path} href={item.path}>
               <div
-                data-testid={`mobile-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                data-testid={`mobile-nav-${item.path.replace("/", "") || "dashboard"}`}
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl relative cursor-pointer",
                   isActive ? "text-primary" : "text-muted-foreground"
@@ -169,7 +169,7 @@ function MobileNav() {
               className="flex flex-col items-center gap-0.5 px-3 py-2 text-muted-foreground rounded-xl"
             >
               <MoreHorizontal size={18} />
-              <span className="text-[10px] mt-0.5">More</span>
+              <span className="text-[10px] mt-0.5">Ещё</span>
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="bg-card border-t border-border rounded-t-2xl">
@@ -203,7 +203,7 @@ function MobileNav() {
                   className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted text-destructive"
                 >
                   <LogOut size={18} />
-                  <span className="text-xs font-medium">Logout</span>
+                  <span className="text-xs font-medium">Выйти</span>
                 </button>
               </div>
             </div>

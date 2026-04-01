@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const FILTERS = [
-  { value: "", label: "All" },
-  { value: "on", label: "Active" },
-  { value: "off", label: "Inactive" },
+  { value: "", label: "Все" },
+  { value: "on", label: "Активные" },
+  { value: "off", label: "Неактивные" },
 ];
 
 export default function LuckyModePage() {
@@ -25,11 +25,10 @@ export default function LuckyModePage() {
   const [filter, setFilter] = useState<"" | "on" | "off">("");
   const [open, setOpen] = useState(false);
 
-  // Form: uses telegram_id (string) as required by SetLuckyModeBody
   const [telegramId, setTelegramId] = useState("");
   const [maxWins, setMaxWins] = useState("");
   const [durationDays, setDurationDays] = useState("");
-  const [reason, setReason] = useState("Lucky mode enabled by admin");
+  const [reason, setReason] = useState("Lucky mode включён администратором");
 
   const { data, isLoading } = useGetLuckyUsers(
     { search, filter },
@@ -51,19 +50,19 @@ export default function LuckyModePage() {
         data: {
           target_telegram_id: telegramId,
           enabled: true,
-          reason: reason || "Enabled by admin",
+          reason: reason || "Включён администратором",
           until,
           max_wins: maxWins ? Number(maxWins) : null,
         }
       });
-      toast({ title: "Lucky mode enabled" });
+      toast({ title: "Lucky mode включён" });
       setOpen(false);
       setTelegramId("");
       setMaxWins("");
       setDurationDays("");
       refresh();
     } catch {
-      toast({ title: "Failed to enable lucky mode", variant: "destructive" });
+      toast({ title: "Ошибка при включении Lucky mode", variant: "destructive" });
     }
   };
 
@@ -73,15 +72,15 @@ export default function LuckyModePage() {
         data: {
           target_telegram_id: telegram_id,
           enabled: false,
-          reason: "Lucky mode disabled by admin",
+          reason: "Lucky mode отключён администратором",
           until: null,
           max_wins: null,
         }
       });
-      toast({ title: `Lucky mode disabled for @${username || telegram_id}` });
+      toast({ title: `Lucky mode отключён для @${username || telegram_id}` });
       refresh();
     } catch {
-      toast({ title: "Failed to disable lucky mode", variant: "destructive" });
+      toast({ title: "Ошибка при отключении Lucky mode", variant: "destructive" });
     }
   };
 
@@ -98,29 +97,29 @@ export default function LuckyModePage() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="gradient-btn text-white flex items-center gap-2" data-testid="button-add-lucky">
-              <Plus size={16} /> Enable for User
+              <Plus size={16} /> Включить для пользователя
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-card border-border">
-            <DialogHeader><DialogTitle>Enable Lucky Mode</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Включить Lucky Mode</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div>
                 <label className="text-sm text-muted-foreground mb-1 block">Telegram ID *</label>
                 <Input
-                  placeholder="e.g. 123456789"
+                  placeholder="Например: 123456789"
                   value={telegramId}
                   onChange={(e) => setTelegramId(e.target.value)}
                   className="bg-muted border-border"
                   data-testid="input-lucky-telegram-id"
                 />
-                <p className="text-xs text-muted-foreground mt-1">User's Telegram numeric ID</p>
+                <p className="text-xs text-muted-foreground mt-1">Числовой Telegram ID пользователя</p>
               </div>
 
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Max Wins (leave empty = unlimited)</label>
+                <label className="text-sm text-muted-foreground mb-1 block">Макс. побед (пусто = без ограничений)</label>
                 <Input
                   type="number"
-                  placeholder="e.g. 10"
+                  placeholder="Например: 10"
                   value={maxWins}
                   onChange={(e) => setMaxWins(e.target.value)}
                   className="bg-muted border-border"
@@ -129,10 +128,10 @@ export default function LuckyModePage() {
               </div>
 
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Duration (days, leave empty = forever)</label>
+                <label className="text-sm text-muted-foreground mb-1 block">Длительность (дни, пусто = бессрочно)</label>
                 <Input
                   type="number"
-                  placeholder="e.g. 7"
+                  placeholder="Например: 7"
                   value={durationDays}
                   onChange={(e) => setDurationDays(e.target.value)}
                   className="bg-muted border-border"
@@ -141,9 +140,9 @@ export default function LuckyModePage() {
               </div>
 
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Reason</label>
+                <label className="text-sm text-muted-foreground mb-1 block">Причина</label>
                 <Input
-                  placeholder="Reason for enabling"
+                  placeholder="Причина включения"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   className="bg-muted border-border"
@@ -157,19 +156,18 @@ export default function LuckyModePage() {
                 disabled={setLuckyMutation.isPending || !telegramId}
                 data-testid="button-apply-lucky"
               >
-                Enable Lucky Mode
+                Включить Lucky Mode
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1 max-w-sm">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search users..."
+            placeholder="Поиск пользователей..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-muted border-border"
@@ -199,7 +197,7 @@ export default function LuckyModePage() {
           ? (
             <div className="glass-card p-12 text-center">
               <Clover size={40} className="text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No users found</p>
+              <p className="text-muted-foreground">Пользователи не найдены</p>
             </div>
           )
           : (
@@ -223,13 +221,13 @@ export default function LuckyModePage() {
                         <span>ID: {user.profile_id}</span>
                         <span className="font-mono">TG: {user.telegram_id}</span>
                         {user.lucky_wins_used != null && (
-                          <span>{user.lucky_wins_used}/{user.lucky_max_wins ?? "∞"} wins used</span>
+                          <span>{user.lucky_wins_used}/{user.lucky_max_wins ?? "∞"} побед</span>
                         )}
                         {user.lucky_until && (
-                          <span className="text-warning">Until: {fmtDate(user.lucky_until)}</span>
+                          <span className="text-warning">До: {fmtDate(user.lucky_until)}</span>
                         )}
                         {user.lucky_mode && !user.lucky_until && (
-                          <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Forever</Badge>
+                          <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Бессрочно</Badge>
                         )}
                       </div>
                     </div>

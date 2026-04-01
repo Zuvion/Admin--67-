@@ -11,7 +11,12 @@ import { CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-const STATUS_FILTERS = ["pending", "completed", "cancelled", "all"] as const;
+const STATUS_FILTERS = [
+  { value: "pending", label: "Ожидают" },
+  { value: "completed", label: "Выполненные" },
+  { value: "cancelled", label: "Отменённые" },
+  { value: "all", label: "Все" },
+] as const;
 
 export default function WithdrawalsPage() {
   const [status, setStatus] = useState<"pending" | "completed" | "cancelled" | "all">("pending");
@@ -37,10 +42,10 @@ export default function WithdrawalsPage() {
   const handleApprove = async (id: number) => {
     try {
       await actionMutation.mutateAsync({ wdId: id, data: { action: "approve", reason: null } });
-      toast({ title: "Withdrawal approved" });
+      toast({ title: "Вывод одобрен" });
       refreshData();
     } catch {
-      toast({ title: "Failed to approve", variant: "destructive" });
+      toast({ title: "Ошибка при одобрении", variant: "destructive" });
     }
   };
 
@@ -48,31 +53,38 @@ export default function WithdrawalsPage() {
     if (!rejectId) return;
     try {
       await actionMutation.mutateAsync({ wdId: rejectId, data: { action: "reject", reason: rejectReason } });
-      toast({ title: "Withdrawal rejected" });
+      toast({ title: "Вывод отклонён" });
       setRejectOpen(false);
       setRejectReason("");
       refreshData();
     } catch {
-      toast({ title: "Failed to reject", variant: "destructive" });
+      toast({ title: "Ошибка при отклонении", variant: "destructive" });
     }
+  };
+
+  const statusLabel = (s: string) => {
+    if (s === "pending") return "Ожидает";
+    if (s === "completed") return "Выполнен";
+    if (s === "cancelled") return "Отменён";
+    return s;
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Withdrawals</h1>
+      <h1 className="text-2xl font-bold mb-6">Выводы</h1>
 
       <div className="flex gap-2 mb-4 flex-wrap">
         {STATUS_FILTERS.map((s) => (
           <button
-            key={s}
-            data-testid={`filter-status-${s}`}
-            onClick={() => { setStatus(s); setPage(1); }}
+            key={s.value}
+            data-testid={`filter-status-${s.value}`}
+            onClick={() => { setStatus(s.value); setPage(1); }}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors",
-              status === s ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"
+              "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+              status === s.value ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
-            {s}
+            {s.label}
           </button>
         ))}
       </div>
@@ -83,13 +95,13 @@ export default function WithdrawalsPage() {
             <thead>
               <tr className="border-b border-border text-muted-foreground text-xs uppercase">
                 <th className="text-left px-4 py-3 font-medium">ID</th>
-                <th className="text-left px-4 py-3 font-medium">User</th>
-                <th className="text-left px-4 py-3 font-medium">Amount</th>
-                <th className="text-left px-4 py-3 font-medium">Address</th>
-                <th className="text-left px-4 py-3 font-medium">Network</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Date</th>
-                {status === "pending" && <th className="text-left px-4 py-3 font-medium">Actions</th>}
+                <th className="text-left px-4 py-3 font-medium">Пользователь</th>
+                <th className="text-left px-4 py-3 font-medium">Сумма</th>
+                <th className="text-left px-4 py-3 font-medium">Адрес</th>
+                <th className="text-left px-4 py-3 font-medium">Сеть</th>
+                <th className="text-left px-4 py-3 font-medium">Статус</th>
+                <th className="text-left px-4 py-3 font-medium">Дата</th>
+                {status === "pending" && <th className="text-left px-4 py-3 font-medium">Действия</th>}
               </tr>
             </thead>
             <tbody>
@@ -102,7 +114,7 @@ export default function WithdrawalsPage() {
                   </tr>
                 ))
                 : withdrawals.length === 0
-                  ? <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">No withdrawals</td></tr>
+                  ? <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Нет выводов</td></tr>
                   : withdrawals.map((w) => (
                     <tr key={w.id} data-testid={`row-withdrawal-${w.id}`} className="border-b border-border/50">
                       <td className="px-4 py-3 font-mono text-xs">{w.id}</td>
@@ -123,7 +135,7 @@ export default function WithdrawalsPage() {
                           w.status === "completed" ? "border-success/50 text-success" :
                           "border-destructive/50 text-destructive"
                         )}>
-                          {w.status}
+                          {statusLabel(w.status ?? "")}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(w.created_at ?? "")}</td>
@@ -165,7 +177,7 @@ export default function WithdrawalsPage() {
           <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} data-testid="button-prev-page">
             <ChevronLeft size={14} />
           </Button>
-          <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+          <span className="text-sm text-muted-foreground">Стр. {page} из {totalPages}</span>
           <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} data-testid="button-next-page">
             <ChevronRight size={14} />
           </Button>
@@ -174,11 +186,11 @@ export default function WithdrawalsPage() {
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent className="bg-card border-border">
-          <DialogHeader><DialogTitle>Reject Withdrawal #{rejectId}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Отклонить вывод #{rejectId}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Funds will be automatically returned to the user's balance.</p>
+            <p className="text-sm text-muted-foreground">Средства автоматически вернутся на баланс пользователя.</p>
             <Input
-              placeholder="Reason for rejection..."
+              placeholder="Причина отклонения..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               className="bg-muted border-border"
@@ -190,7 +202,7 @@ export default function WithdrawalsPage() {
               disabled={actionMutation.isPending}
               data-testid="button-confirm-reject"
             >
-              Reject Withdrawal
+              Отклонить вывод
             </Button>
           </div>
         </DialogContent>

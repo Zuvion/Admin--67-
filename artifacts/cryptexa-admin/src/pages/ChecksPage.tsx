@@ -36,23 +36,23 @@ export default function ChecksPage() {
         amount: Number(amount),
         expires_at: result.expires_at,
       });
-      toast({ title: "Gift check created!" });
+      toast({ title: "Чек создан!" });
     } catch {
-      toast({ title: "Failed to create check", variant: "destructive" });
+      toast({ title: "Ошибка при создании чека", variant: "destructive" });
     }
   };
 
   const handleCopyCode = () => {
     if (created?.code) {
       navigator.clipboard.writeText(created.code);
-      toast({ title: "Code copied" });
+      toast({ title: "Код скопирован" });
     }
   };
 
   const handleCopyLink = () => {
     if (created?.link) {
       navigator.clipboard.writeText(created.link);
-      toast({ title: "Link copied" });
+      toast({ title: "Ссылка скопирована" });
     }
   };
 
@@ -68,23 +68,23 @@ export default function ChecksPage() {
         <div className="p-2 rounded-xl bg-primary/20">
           <Gift size={20} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Gift Checks</h1>
+        <h1 className="text-2xl font-bold">Подарочные чеки</h1>
       </div>
 
       <div className="max-w-lg">
         {created ? (
           <div className="glass-card p-8 text-center">
             <CheckCircle size={48} className="text-success mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Check Created!</h2>
+            <h2 className="text-xl font-bold mb-2">Чек создан!</h2>
             <p className="text-muted-foreground mb-6">
-              Amount: <span className="font-bold text-foreground">{fmtNum(created.amount)} USDT</span>
+              Сумма: <span className="font-bold text-foreground">{fmtNum(created.amount)} USDT</span>
               {created.expires_at && (
-                <span className="block text-xs mt-1">Expires: {fmtDate(created.expires_at)}</span>
+                <span className="block text-xs mt-1">Истекает: {fmtDate(created.expires_at)}</span>
               )}
             </p>
 
             <div className="bg-muted rounded-xl p-4 mb-3">
-              <p className="text-xs text-muted-foreground mb-1">Gift Code</p>
+              <p className="text-xs text-muted-foreground mb-1">Код чека</p>
               <div className="flex items-center justify-center gap-2">
                 <p className="font-mono font-bold text-2xl text-primary tracking-wider" data-testid="text-check-code">
                   {created.code}
@@ -97,7 +97,7 @@ export default function ChecksPage() {
 
             {created.link && (
               <div className="bg-muted rounded-xl p-3 mb-6">
-                <p className="text-xs text-muted-foreground mb-1">Gift Link</p>
+                <p className="text-xs text-muted-foreground mb-1">Ссылка</p>
                 <div className="flex items-center justify-center gap-2">
                   <p className="font-mono text-xs text-muted-foreground truncate max-w-[200px]" data-testid="text-check-link">
                     {created.link}
@@ -110,23 +110,23 @@ export default function ChecksPage() {
             )}
 
             <Button className="w-full gradient-btn text-white" onClick={handleReset} data-testid="button-new-check">
-              Create Another Check
+              Создать ещё чек
             </Button>
           </div>
         ) : (
           <div className="glass-card p-6 space-y-5">
             <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
               <p className="text-sm text-muted-foreground">
-                Create a gift check that users can redeem to add USDT to their balance.
-                Each check has a unique code and a configurable expiry time.
+                Создайте подарочный чек, который пользователи могут активировать для пополнения баланса.
+                Каждый чек имеет уникальный код и настраиваемый срок действия.
               </p>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Amount (USDT) *</label>
+              <label className="text-sm font-medium mb-2 block">Сумма (USDT) *</label>
               <Input
                 type="number"
-                placeholder="e.g. 100"
+                placeholder="Например: 100"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="bg-muted border-border"
@@ -137,7 +137,7 @@ export default function ChecksPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Expires In (hours)</label>
+              <label className="text-sm font-medium mb-2 block">Срок действия (часы)</label>
               <Input
                 type="number"
                 placeholder="24"
@@ -147,18 +147,17 @@ export default function ChecksPage() {
                 data-testid="input-check-expires"
                 min="1"
               />
-              <p className="text-xs text-muted-foreground mt-1">How long this check is valid for</p>
+              <p className="text-xs text-muted-foreground mt-1">Как долго чек будет активен</p>
             </div>
 
-            {/* Preview */}
             {amount && Number(amount) > 0 && (
               <div className="p-4 bg-muted/50 rounded-xl border border-border">
-                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase">Preview</p>
+                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase">Превью</p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium">Gift Check</p>
+                    <p className="text-sm font-medium">Подарочный чек</p>
                     <p className="text-xs text-muted-foreground">
-                      Expires in {expiresHours || 24}h
+                      Действует {expiresHours || 24} ч.
                     </p>
                   </div>
                   <p className="font-mono font-bold text-xl text-success">{fmtNum(Number(amount))} USDT</p>
@@ -173,7 +172,7 @@ export default function ChecksPage() {
               data-testid="button-create-check"
             >
               <Gift size={16} />
-              {createMutation.isPending ? "Creating..." : "Create Gift Check"}
+              {createMutation.isPending ? "Создание..." : "Создать чек"}
             </Button>
           </div>
         )}

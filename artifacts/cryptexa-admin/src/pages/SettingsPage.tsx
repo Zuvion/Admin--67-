@@ -3,10 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, RefreshCw, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Settings, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
@@ -18,7 +17,7 @@ export default function SettingsPage() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: getGetCryptexaHealthQueryKey() });
-    toast({ title: "Refreshed" });
+    toast({ title: "Обновлено" });
   };
 
   return (
@@ -27,14 +26,14 @@ export default function SettingsPage() {
         <div className="p-2 rounded-xl bg-primary/20">
           <Settings size={20} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-2xl font-bold">Настройки</h1>
       </div>
 
       <div className="max-w-lg space-y-4">
-        {/* Connection Status */}
+        {/* Статус подключения */}
         <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">CRYPTEXA Backend Status</h2>
+            <h2 className="font-semibold">Статус бэкенда CRYPTEXA</h2>
             <Button
               variant="outline"
               size="sm"
@@ -43,7 +42,7 @@ export default function SettingsPage() {
               data-testid="button-refresh-status"
             >
               <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
-              Refresh
+              Обновить
             </Button>
           </div>
 
@@ -53,9 +52,9 @@ export default function SettingsPage() {
             <div className="flex items-start gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
               <XCircle size={18} className="text-destructive mt-0.5" />
               <div>
-                <p className="font-medium text-destructive">Backend Unreachable</p>
+                <p className="font-medium text-destructive">Бэкенд недоступен</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Cannot connect to CRYPTEXA backend. Check CRYPTEXA_API_URL and ADMIN_API_KEY configuration.
+                  Не удаётся подключиться к CRYPTEXA. Проверьте переменные CRYPTEXA_API_URL и ADMIN_API_KEY.
                 </p>
               </div>
             </div>
@@ -64,20 +63,20 @@ export default function SettingsPage() {
               <div className="flex items-start gap-3 p-4 bg-success/10 border border-success/20 rounded-xl">
                 <CheckCircle size={18} className="text-success mt-0.5" />
                 <div>
-                  <p className="font-medium text-success">Backend Connected</p>
+                  <p className="font-medium text-success">Бэкенд подключён</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Successfully connected to the CRYPTEXA exchange backend.
+                    Успешное соединение с CRYPTEXA.
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-muted rounded-xl">
-                  <p className="text-xs text-muted-foreground mb-1">App Name</p>
+                  <p className="text-xs text-muted-foreground mb-1">Приложение</p>
                   <p className="font-medium">{data?.app || "CRYPTEXA"}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-xl">
-                  <p className="text-xs text-muted-foreground mb-1">Version</p>
+                  <p className="text-xs text-muted-foreground mb-1">Версия</p>
                   <p className="font-mono">{data?.version || "—"}</p>
                 </div>
                 {data?.admin_id && (
@@ -91,9 +90,9 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Environment Info */}
+        {/* Переменные окружения */}
         <div className="glass-card p-5">
-          <h2 className="font-semibold mb-4">Environment</h2>
+          <h2 className="font-semibold mb-4">Переменные окружения</h2>
           <div className="space-y-2">
             {[
               { key: "CRYPTEXA_API_URL", required: true },
@@ -104,45 +103,45 @@ export default function SettingsPage() {
               <div key={env.key} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                 <span className="font-mono text-xs">{env.key}</span>
                 <div className="flex items-center gap-2">
-                  {env.required && <Badge variant="outline" className="text-[10px]">Required</Badge>}
+                  {env.required && <Badge variant="outline" className="text-[10px]">Обязательно</Badge>}
                   <span className="text-xs text-muted-foreground">••••••</span>
                 </div>
               </div>
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Set these environment variables in the Replit Secrets panel to connect to your CRYPTEXA backend.
+            Задайте эти переменные в разделе Secrets в Replit для подключения к вашему CRYPTEXA бэкенду.
           </p>
         </div>
 
-        {/* API Info */}
+        {/* Информация об API */}
         <div className="glass-card p-5">
-          <h2 className="font-semibold mb-4">Admin API</h2>
+          <h2 className="font-semibold mb-4">API</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Auth method</span>
+              <span className="text-muted-foreground">Авторизация</span>
               <span>JWT Bearer Token</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Token expiry</span>
-              <span>24 hours</span>
+              <span className="text-muted-foreground">Срок токена</span>
+              <span>30 дней</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Dashboard refresh</span>
-              <span>30 seconds</span>
+              <span className="text-muted-foreground">Обновление дашборда</span>
+              <span>каждые 30 сек</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Support chat refresh</span>
-              <span>10 seconds</span>
+              <span className="text-muted-foreground">Обновление чата</span>
+              <span>каждые 10 сек</span>
             </div>
           </div>
         </div>
 
-        {/* Logout */}
+        {/* Выход */}
         <div className="glass-card p-5">
-          <h2 className="font-semibold mb-2">Session</h2>
+          <h2 className="font-semibold mb-2">Сессия</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Logout ends your current admin session. You will need to re-enter your password to access the panel again.
+            Выход завершает текущую сессию администратора. Для повторного входа потребуется пароль.
           </p>
           <Button
             variant="outline"
@@ -150,7 +149,7 @@ export default function SettingsPage() {
             onClick={logout}
             data-testid="button-logout"
           >
-            Logout
+            Выйти из панели
           </Button>
         </div>
       </div>

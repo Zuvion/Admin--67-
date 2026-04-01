@@ -20,11 +20,11 @@ export default function TradesPage() {
         tradeId: Number(tradeId),
         data: { result }
       });
-      toast({ title: `Trade #${tradeId} overridden to ${result.toUpperCase()}` });
+      toast({ title: `Сделка #${tradeId} переопределена на ${result === "win" ? "ПОБЕДУ" : "ПОРАЖЕНИЕ"}` });
       setDone(true);
       setTradeId("");
     } catch {
-      toast({ title: "Failed to override trade", variant: "destructive" });
+      toast({ title: "Ошибка при переопределении сделки", variant: "destructive" });
     }
   };
 
@@ -34,19 +34,18 @@ export default function TradesPage() {
         <div className="p-2 rounded-xl bg-primary/20">
           <TrendingUp size={20} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Trade Override</h1>
+        <h1 className="text-2xl font-bold">Переопределение сделок</h1>
       </div>
 
       <div className="max-w-lg space-y-4">
-        {/* Warning */}
         <div className="glass-card p-4 border border-warning/30">
           <div className="flex items-start gap-3">
             <AlertTriangle size={18} className="text-warning mt-0.5 flex-shrink-0" />
             <div>
-              <p className="font-semibold text-warning">Manual Trade Override</p>
+              <p className="font-semibold text-warning">Ручное переопределение сделки</p>
               <p className="text-sm text-muted-foreground mt-1">
-                This will force the result of an active trade. The trade must still be open (not yet expired).
-                Use with extreme caution — this action cannot be undone.
+                Это принудительно изменит результат активной сделки. Сделка должна ещё быть открыта (не истекла).
+                Используйте с крайней осторожностью — действие нельзя отменить.
               </p>
             </div>
           </div>
@@ -54,32 +53,32 @@ export default function TradesPage() {
 
         <div className="glass-card p-6 space-y-5">
           <div>
-            <label className="text-sm font-medium mb-2 block">Trade ID</label>
+            <label className="text-sm font-medium mb-2 block">ID сделки</label>
             <Input
               type="number"
-              placeholder="Enter trade ID to override"
+              placeholder="Введите ID сделки"
               value={tradeId}
               onChange={(e) => { setTradeId(e.target.value); setDone(false); }}
               className="bg-muted border-border"
               data-testid="input-trade-id"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              You can find trade IDs in the user's trade history on their profile page.
+              ID сделки можно найти в истории сделок на странице пользователя.
             </p>
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Force Result</label>
+            <label className="text-sm font-medium mb-2 block">Принудительный результат</label>
             <Select value={result} onValueChange={(v) => setResult(v as "win" | "loss")}>
               <SelectTrigger className="bg-muted border-border" data-testid="select-trade-result">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-card border-border">
                 <SelectItem value="win">
-                  <span className="text-success font-semibold">WIN</span>
+                  <span className="text-success font-semibold">ПОБЕДА</span>
                 </SelectItem>
                 <SelectItem value="loss">
-                  <span className="text-destructive font-semibold">LOSS</span>
+                  <span className="text-destructive font-semibold">ПОРАЖЕНИЕ</span>
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -88,7 +87,7 @@ export default function TradesPage() {
           {done && (
             <div className="flex items-center gap-2 text-success">
               <CheckCircle size={16} />
-              <span className="text-sm">Override applied successfully</span>
+              <span className="text-sm">Переопределение применено успешно</span>
             </div>
           )}
 
@@ -98,17 +97,17 @@ export default function TradesPage() {
             disabled={!tradeId || overrideMutation.isPending}
             data-testid="button-override-trade"
           >
-            {overrideMutation.isPending ? "Overriding..." : `Force ${result.toUpperCase()}`}
+            {overrideMutation.isPending ? "Применение..." : `Принудить ${result === "win" ? "ПОБЕДУ" : "ПОРАЖЕНИЕ"}`}
           </Button>
         </div>
 
         <div className="glass-card p-4">
-          <p className="text-xs text-muted-foreground font-medium mb-2">How to use</p>
+          <p className="text-xs text-muted-foreground font-medium mb-2">Как использовать</p>
           <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-            <li>Find the user on the Users page and open their profile</li>
-            <li>Go to the Trades tab and find the active trade you want to override</li>
-            <li>Copy the trade ID and paste it above</li>
-            <li>Select the desired result and click Override</li>
+            <li>Найдите пользователя на странице Пользователи и откройте его профиль</li>
+            <li>Перейдите на вкладку Сделки и найдите активную сделку</li>
+            <li>Скопируйте ID сделки и вставьте выше</li>
+            <li>Выберите нужный результат и нажмите кнопку</li>
           </ol>
         </div>
       </div>

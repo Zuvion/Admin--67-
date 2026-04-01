@@ -23,10 +23,10 @@ export default function LoginPage() {
         login(result.token);
         setLocation("/");
       } else {
-        setError("Invalid password");
+        setError("Неверный пароль");
       }
     } catch {
-      setError("Invalid password");
+      setError("Неверный пароль");
     }
   };
 
@@ -39,7 +39,7 @@ export default function LoginPage() {
               <Shield size={28} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">CRYPTEXA</h1>
-            <p className="text-sm text-muted-foreground mt-1">Admin Panel</p>
+            <p className="text-sm text-muted-foreground mt-1">Панель Администратора</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -47,7 +47,7 @@ export default function LoginPage() {
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="Enter admin password"
+                placeholder="Введите пароль администратора"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 bg-muted border-border text-foreground"
@@ -68,12 +68,12 @@ export default function LoginPage() {
               disabled={loginMutation.isPending}
               data-testid="button-login"
             >
-              {loginMutation.isPending ? "Logging in..." : "Login"}
+              {loginMutation.isPending ? "Вход..." : "Войти"}
             </Button>
           </form>
 
           <p className="text-xs text-muted-foreground text-center mt-6">
-            Secured access — CRYPTEXA Admin
+            Защищённый доступ — CRYPTEXA Admin
           </p>
         </div>
       </div>

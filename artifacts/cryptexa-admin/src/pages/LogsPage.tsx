@@ -23,7 +23,7 @@ export default function LogsPage() {
         <div className="p-2 rounded-xl bg-primary/20">
           <ScrollText size={20} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold">Admin Logs</h1>
+        <h1 className="text-2xl font-bold">Логи администратора</h1>
       </div>
 
       <div className="glass-card overflow-hidden">
@@ -31,12 +31,12 @@ export default function LogsPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted-foreground text-xs uppercase">
-                <th className="text-left px-4 py-3 font-medium w-40">Time</th>
-                <th className="text-left px-4 py-3 font-medium w-24">Action</th>
-                <th className="text-left px-4 py-3 font-medium">Before</th>
-                <th className="text-left px-4 py-3 font-medium">After</th>
-                <th className="text-left px-4 py-3 font-medium">Reason</th>
-                <th className="text-left px-4 py-3 font-medium w-24">Admin</th>
+                <th className="text-left px-4 py-3 font-medium w-40">Время</th>
+                <th className="text-left px-4 py-3 font-medium w-24">Действие</th>
+                <th className="text-left px-4 py-3 font-medium">Было</th>
+                <th className="text-left px-4 py-3 font-medium">Стало</th>
+                <th className="text-left px-4 py-3 font-medium">Причина</th>
+                <th className="text-left px-4 py-3 font-medium w-24">Админ</th>
                 <th className="text-left px-4 py-3 font-medium w-24">User ID</th>
               </tr>
             </thead>
@@ -50,7 +50,7 @@ export default function LogsPage() {
                   </tr>
                 ))
                 : logs.length === 0
-                  ? <tr><td colSpan={7} className="text-center py-8 text-muted-foreground font-sans">No logs found</td></tr>
+                  ? <tr><td colSpan={7} className="text-center py-8 text-muted-foreground font-sans">Логи не найдены</td></tr>
                   : logs.map((log) => (
                     <tr key={log.id} data-testid={`row-log-${log.id}`} className="border-b border-border/50 hover:bg-white/2 transition-colors font-mono">
                       <td className="px-4 py-2 text-muted-foreground">{fmtDate(log.created_at ?? "")}</td>
@@ -83,7 +83,7 @@ export default function LogsPage() {
           <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} data-testid="button-prev-page">
             <ChevronLeft size={14} />
           </Button>
-          <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+          <span className="text-sm text-muted-foreground">Стр. {page} из {totalPages}</span>
           <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} data-testid="button-next-page">
             <ChevronRight size={14} />
           </Button>
