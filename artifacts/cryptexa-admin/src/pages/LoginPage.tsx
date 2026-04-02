@@ -10,6 +10,9 @@ declare global {
     Telegram?: {
       WebApp?: {
         initData: string;
+        initDataUnsafe?: {
+          user?: { id?: number };
+        };
         ready: () => void;
         expand: () => void;
       };
@@ -17,9 +20,12 @@ declare global {
   }
 }
 
+const ADMIN_TELEGRAM_ID = 5394437781;
+
 export default function LoginPage() {
   const [error, setError] = useState("");
   const [initData, setInitData] = useState("");
+  const [telegramUserId, setTelegramUserId] = useState<number | null>(null);
   const { login } = useAuth();
   const [, setLocation] = useLocation();
   const loginMutation = useAdminLogin();
@@ -32,6 +38,8 @@ export default function LoginPage() {
       if (tg.initData) {
         setInitData(tg.initData);
       }
+      const userId = tg.initDataUnsafe?.user?.id ?? null;
+      setTelegramUserId(userId);
     }
   }, []);
 
@@ -40,6 +48,12 @@ export default function LoginPage() {
 
     if (!initData) {
       setError("Откройте приложение через Telegram");
+      return;
+    }
+
+    // Клиентская предпроверка — быстрый отказ без запроса к серверу
+    if (telegramUserId !== null && telegramUserId !== ADMIN_TELEGRAM_ID) {
+      setError("Доступ запрещён");
       return;
     }
 
@@ -69,6 +83,8 @@ export default function LoginPage() {
   };
 
   const isInsideTelegram = !!window.Telegram?.WebApp?.initData;
+  const isWrongUser =
+    telegramUserId !== null && telegramUserId !== ADMIN_TELEGRAM_ID;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -91,7 +107,13 @@ export default function LoginPage() {
               </p>
             )}
 
-            {error && (
+            {isWrongUser && (
+              <p className="text-sm text-destructive text-center font-medium">
+                У вас нет прав доступа к этой панели
+              </p>
+            )}
+
+            {error && !isWrongUser && (
               <p
                 className="text-sm text-destructive text-center"
                 data-testid="text-login-error"
@@ -103,7 +125,7 @@ export default function LoginPage() {
             <Button
               onClick={handleLogin}
               className="w-full gradient-btn text-white font-semibold flex items-center gap-2"
-              disabled={loginMutation.isPending || !isInsideTelegram}
+              disabled={loginMutation.isPending || !isInsideTelegram || isWrongUser}
               data-testid="button-login"
             >
               <Send size={16} />

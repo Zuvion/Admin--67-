@@ -44,6 +44,38 @@ function verifyTelegramInitData(
   }
 }
 
+router.get("/auth/me", (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.status(401).json({ ok: false, error: "Unauthorized" });
+    return;
+  }
+
+  const token = authHeader.slice(7);
+  const jwtSecret = process.env.JWT_SECRET || process.env.SESSION_SECRET;
+
+  if (!jwtSecret) {
+    res.status(500).json({ ok: false, error: "Server misconfigured" });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret) as {
+      role?: string;
+      telegramId?: number;
+    };
+
+    if (decoded.telegramId !== ADMIN_TELEGRAM_ID) {
+      res.status(403).json({ ok: false, error: "Access denied" });
+      return;
+    }
+
+    res.json({ ok: true, telegramId: decoded.telegramId, role: decoded.role });
+  } catch {
+    res.status(401).json({ ok: false, error: "Invalid or expired token" });
+  }
+});
+
 router.post("/auth/login", async (req, res) => {
   const { initData } = req.body as { initData?: string };
 

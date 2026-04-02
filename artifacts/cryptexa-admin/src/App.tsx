@@ -28,18 +28,27 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
   if (!token) return <Redirect to="/login" />;
   return <Layout>{children}</Layout>;
 }
 
 function Router() {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
 
   return (
     <Switch>
       <Route path="/login">
-        {token ? <Redirect to="/" /> : <LoginPage />}
+        {loading
+          ? <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>
+          : token ? <Redirect to="/" /> : <LoginPage />}
       </Route>
       <Route path="/">
         <ProtectedRoute><DashboardPage /></ProtectedRoute>
