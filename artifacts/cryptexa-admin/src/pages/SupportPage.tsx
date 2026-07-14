@@ -2,23 +2,56 @@ import { useState, useRef, useEffect } from "react";
 import {
   useGetChatUnread, getGetChatUnreadQueryKey,
   useGetChatHistory, getGetChatHistoryQueryKey,
-  useSendChatMessage
+  useSendChatMessage,
+  useListUsers, getListUsersQueryKey
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { fmtDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Send, RefreshCw } from "lucide-react";
+import { MessageCircle, Send, RefreshCw, Search, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+type Conversation = {
+  id: number;
+  username: string;
+  unread: number;
+};
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
+function Avatar({ name }: { name: string }) {
+  const letter = (name?.trim()?.[0] || "#").toUpperCase();
+  return (
+    <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-semibold text-white bg-gradient-to-br from-primary to-purple-600">
+      {letter}
+    </div>
+  );
+}
 
 export default function SupportPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const isMobile = useIsMobile();
+
+  const [selected, setSelected] = useState<Conversation | null>(null);
   const [message, setMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const selectedUserId = selected?.id ?? null;
+  const searchActive = debouncedSearch.trim().length > 0;
 
   const { data: unreadData, isLoading: unreadLoading, refetch: refetchUnread } = useGetChatUnread({
     query: {
@@ -26,6 +59,16 @@ export default function SupportPage() {
       refetchInterval: 3000
     }
   });
+
+  const { data: usersData, isLoading: usersLoading } = useListUsers(
+    { page: 1, limit: 30, search: debouncedSearch, filter: "" as "" },
+    {
+      query: {
+        queryKey: getListUsersQueryKey({ page: 1, limit: 30, search: debouncedSearch, filter: "" as "" }),
+        enabled: searchActive
+      }
+    }
+  );
 
   const { data: historyData, isLoading: historyLoading, refetch: refetchHistory } = useGetChatHistory(
     selectedUserId!,
@@ -38,20 +81,38 @@ export default function SupportPage() {
     }
   );
 
-  const handleRefresh = () => {
-    refetchUnread();
-    if (selectedUserId !== null) refetchHistory();
-  };
-
   const sendMutation = useSendChatMessage();
 
-  const users = unreadData?.data ?? [];
+  const dialogs: Conversation[] = (unreadData?.data ?? []).map((u) => ({
+    id: (u.profile_id ?? u.user_id) as number,
+    username: u.username || `user_${u.profile_id}`,
+    unread: u.unread_count ?? 0,
+  }));
+
+  const searchResults: Conversation[] = (usersData?.users ?? []).map((u) => ({
+    id: u.profile_id as number,
+    username: u.username || `user_${u.profile_id}`,
+    unread: 0,
+  }));
+
+  const list = searchActive ? searchResults : dialogs;
+  const listLoading = searchActive ? usersLoading : unreadLoading;
+
   const messages = historyData?.data?.messages ?? [];
   const selectedUserInfo = historyData?.data?.user;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleRefresh = () => {
+    refetchUnread();
+    if (selectedUserId !== null) refetchHistory();
+  };
+
+  const handleSelect = (conv: Conversation) => {
+    setSelected(conv);
+  };
 
   const handleSend = async () => {
     if (!message.trim() || selectedUserId === null) return;
@@ -77,7 +138,144 @@ export default function SupportPage() {
     }
   };
 
-  const selectedUserData = users.find(u => u.user_id === selectedUserId || u.profile_id === selectedUserId);
+  const chatTitle = selectedUserInfo?.username || selected?.username || `Пользователь #${selectedUserId}`;
+
+  /* ---- Список диалогов / поиск пользователей ---- */
+  const listPanel = (
+    <div className="flex flex-col h-full">
+      <div className="p-3 border-b border-border space-y-3">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Чаты</p>
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Найти пользователя..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 bg-muted border-border h-9 text-sm"
+            data-testid="input-support-search"
+          />
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        {listLoading ? (
+          <div className="p-3 space-y-2">
+            {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
+          </div>
+        ) : list.length === 0 ? (
+          <div className="p-6 text-center text-xs text-muted-foreground">
+            {searchActive ? "Пользователи не найдены" : "Нет активных диалогов. Найдите пользователя через поиск, чтобы начать чат."}
+          </div>
+        ) : (
+          list.map((conv) => (
+            <button
+              key={conv.id}
+              onClick={() => handleSelect(conv)}
+              data-testid={`button-chat-user-${conv.id}`}
+              className={cn(
+                "w-full p-3 flex items-center gap-3 text-left hover:bg-white/5 transition-colors border-b border-border/40",
+                selectedUserId === conv.id && "bg-primary/10"
+              )}
+            >
+              <Avatar name={conv.username} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium truncate">@{conv.username}</span>
+                  {conv.unread > 0 && (
+                    <span className="text-[10px] font-bold bg-destructive text-white rounded-full px-1.5 min-w-[18px] text-center flex-shrink-0">
+                      {conv.unread}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-muted-foreground">ID: {conv.id}</span>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  /* ---- Окно чата ---- */
+  const chatPanel = selectedUserId === null ? (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="text-center px-4">
+        <MessageCircle size={40} className="text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">Выберите диалог для начала общения</p>
+      </div>
+    </div>
+  ) : (
+    <div className="flex flex-col h-full min-w-0">
+      {/* Шапка чата */}
+      <div className="p-3 border-b border-border flex items-center gap-3">
+        {isMobile && (
+          <button
+            onClick={() => setSelected(null)}
+            className="p-1 -ml-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
+            data-testid="button-back-to-list"
+            aria-label="Назад"
+          >
+            <ArrowLeft size={20} />
+          </button>
+        )}
+        <Avatar name={chatTitle} />
+        <div className="min-w-0">
+          <p className="font-medium text-sm truncate">@{chatTitle}</p>
+          {selectedUserInfo?.profile_id != null && (
+            <p className="text-xs text-muted-foreground">Profile ID: {selectedUserInfo.profile_id}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Сообщения */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+        {historyLoading ? (
+          <div className="space-y-3">{Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>
+        ) : messages.length === 0 ? (
+          <div className="text-center text-muted-foreground text-sm py-8">Сообщений нет. Начните разговор.</div>
+        ) : (
+          messages.map((msg) => {
+            const isAdmin = msg.is_from_admin;
+            return (
+              <div key={msg.id} className={cn("flex", isAdmin ? "justify-end" : "justify-start")}>
+                <div className={cn(
+                  "max-w-[80%] px-4 py-2.5 rounded-2xl text-sm",
+                  isAdmin
+                    ? "bg-primary text-white rounded-br-md"
+                    : "bg-muted text-foreground rounded-bl-md"
+                )} data-testid={`msg-${msg.id}`}>
+                  <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                  <p className={cn("text-[10px] mt-1", isAdmin ? "text-white/60" : "text-muted-foreground")}>
+                    {msg.created_at ? fmtDate(msg.created_at) : ""}
+                  </p>
+                </div>
+              </div>
+            );
+          })
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Поле ввода */}
+      <div className="p-3 border-t border-border flex gap-2">
+        <Input
+          placeholder="Напишите сообщение..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="bg-muted border-border flex-1"
+          data-testid="input-chat-message"
+        />
+        <Button
+          onClick={handleSend}
+          disabled={!message.trim() || sendMutation.isPending}
+          className="gradient-btn text-white flex-shrink-0"
+          data-testid="button-send-chat"
+        >
+          <Send size={16} />
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -90,118 +288,22 @@ export default function SupportPage() {
       </div>
 
       <div className="glass-card overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
-        <div className="flex h-full">
-          {/* Список диалогов */}
-          <div className="w-48 sm:w-64 flex-shrink-0 border-r border-border flex flex-col">
-            <div className="p-3 border-b border-border">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Диалоги</p>
+        {isMobile ? (
+          // Мобильный режим: показываем либо список, либо чат на весь экран (как в мессенджере)
+          <div className="h-full">
+            {selectedUserId === null ? listPanel : chatPanel}
+          </div>
+        ) : (
+          // Десктоп: две колонки
+          <div className="flex h-full">
+            <div className="w-72 flex-shrink-0 border-r border-border">
+              {listPanel}
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
-              {unreadLoading
-                ? <div className="p-3 space-y-2">
-                    {Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
-                  </div>
-                : users.length === 0
-                  ? <div className="p-4 text-center text-xs text-muted-foreground">Нет диалогов</div>
-                  : users.map((u) => {
-                    const uid = u.user_id ?? u.profile_id ?? 0;
-                    return (
-                      <button
-                        key={uid}
-                        onClick={() => setSelectedUserId(uid)}
-                        data-testid={`button-chat-user-${uid}`}
-                        className={cn(
-                          "w-full p-3 text-left hover:bg-white/5 transition-colors border-b border-border/50",
-                          selectedUserId === uid && "bg-primary/10"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium truncate">@{u.username || `user_${u.profile_id}`}</span>
-                          {(u.unread_count ?? 0) > 0 && (
-                            <span className="text-[10px] font-bold bg-destructive text-white rounded-full px-1.5 min-w-[18px] text-center flex-shrink-0 ml-1">
-                              {u.unread_count}
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })
-              }
+            <div className="flex-1 flex flex-col min-w-0">
+              {chatPanel}
             </div>
           </div>
-
-          {/* Область чата */}
-          <div className="flex-1 flex flex-col min-w-0">
-            {selectedUserId === null ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center px-4">
-                  <MessageCircle size={40} className="text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground text-sm">Выберите диалог для начала общения</p>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Шапка чата */}
-                <div className="p-3 border-b border-border">
-                  <p className="font-medium text-sm">
-                    @{selectedUserInfo?.username || selectedUserData?.username || `Пользователь #${selectedUserId}`}
-                  </p>
-                  {selectedUserInfo?.profile_id && (
-                    <p className="text-xs text-muted-foreground">Profile ID: {selectedUserInfo.profile_id}</p>
-                  )}
-                </div>
-
-                {/* Сообщения */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
-                  {historyLoading
-                    ? <div className="space-y-3">{Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>
-                    : messages.length === 0
-                      ? <div className="text-center text-muted-foreground text-sm py-8">Сообщений нет. Начните разговор.</div>
-                      : messages.map((msg) => {
-                        const isAdmin = msg.is_from_admin;
-                        return (
-                          <div key={msg.id} className={cn("flex", isAdmin ? "justify-end" : "justify-start")}>
-                            <div className={cn(
-                              "max-w-[80%] px-4 py-2.5 rounded-2xl text-sm",
-                              isAdmin
-                                ? "bg-primary text-white rounded-br-md"
-                                : "bg-muted text-foreground rounded-bl-md"
-                            )} data-testid={`msg-${msg.id}`}>
-                              <p className="whitespace-pre-wrap break-words">{msg.text}</p>
-                              <p className={cn("text-[10px] mt-1", isAdmin ? "text-white/60" : "text-muted-foreground")}>
-                                {msg.created_at ? fmtDate(msg.created_at) : ""}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })
-                  }
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Поле ввода */}
-                <div className="p-3 border-t border-border flex gap-2">
-                  <Input
-                    placeholder="Напишите сообщение... (Enter для отправки)"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="bg-muted border-border flex-1"
-                    data-testid="input-chat-message"
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={!message.trim() || sendMutation.isPending}
-                    className="gradient-btn text-white"
-                    data-testid="button-send-chat"
-                  >
-                    <Send size={16} />
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
